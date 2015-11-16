@@ -33,7 +33,7 @@ def PushOver(message):
 	  #I know, I know no keys in source control. Sheesh.
           #The old keys no longer work
         "token": pushover_token,
-        "user": pushover_user,
+        "user": "ukUwkSRaoYn87SDcstrSq9qBqedaHA",
         "message": message,
       }), { "Content-type": "application/x-www-form-urlencoded" })
     conn.getresponse()
