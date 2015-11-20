@@ -24,12 +24,12 @@ class DoorControl(object):
     
     def page_buttons(self):    
         self.page = self.ui.new_ui_page(title="Control Door")
-        self.ui = PiUi()
+        self.ui = DoorControl()
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Doors", "h1")
         self.page.add_textbox("Current Status of Door:", "p")
-        Door_Action = self.page.add_button("Open", self.onopenclick)
-        Door_Action = self.page.add_button("Close", self.oncloseclick)
-        killSystem = self.page.add_button("Shutdown Door & Server", self.onstopclick)
+        self.page.add_button("Open", self.onopenclick)
+        self.page.add_button("Close", self.oncloseclick)
+        self.page.add_button("Shutdown Door & Server", self.onstopclick)
 
     def main_menu(self)
         self.page = self.ui.new_ui_page(title="Control Door")
@@ -43,6 +43,9 @@ class DoorControl(object):
 
     def oncloseclick(self):
 	DoorAction = down
+	
+    def onstopclick(self):
+	killSystem = '1'
         
     def main(self):
         self.main_menu()
@@ -65,7 +68,7 @@ GPIO.setup(33,GPIO.IN)#Locked
 GPIO.setup(31,GPIO.IN)#Open
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
-if Door_Action=='up': #Shutdown is queued
+if killSystem == '1': #Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
         GPIO.output(37,False)
         GPIO.output(35,False)
@@ -150,12 +153,10 @@ if Door_Action=='up': #Door is locked
 				print 'Something went wrong, go check the door!'
 				message = 'Coop open FAILED!'
 				PushOver(message)
-				Safe_Kill()
 		if TopHall==0:
 				print 'Door is open!'
 				message = 'Coop opened successfully!'
 				PushOver(message)
-				Safe_Kill()
 elif Door_Action=='down': #Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
@@ -168,13 +169,11 @@ elif Door_Action=='down': #Door is open
 				print 'Something went wrong, go check the door!'
 				message = "Coop close FAILED!"
 				PushOver(message)
-				Safe_Kill()
 		if BottomHall==0:
 				time.sleep(1)
 				print 'Door is locked!'
 				message = "Coop closed successfully!"
 				PushOver(message)
-				Safe_Kill()
 elif BottomHall==0: #Door is locked
 		print 'The door is locked!'
 		print 'The door is going up!'
@@ -187,12 +186,10 @@ elif BottomHall==0: #Door is locked
 				print 'I couldn't open the door, go check it!'
 				message = "Coop open FAILED!"
 				PushOver(message)
-				Safe_Kill()
 		if TopHall==0:
 				print 'Door is open!'
 				message = "Coop opened successfully!"
 				PushOver(message)
-				Safe_Kill()
 elif TopHall==0: #Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
@@ -205,9 +202,7 @@ elif TopHall==0: #Door is open
 				print 'I couldn't close the door, go check it!'
 				message = "Coop close FAILED!"
 				PushOver(message)
-				Safe_Kill()
 		if BottomHall==0:
 				print 'Door is locked!'
 				message = "Coop closed successfully!"
 				PushOver(message)
-				Safe_Kill()
