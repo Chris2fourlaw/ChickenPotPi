@@ -27,9 +27,9 @@ class DoorControl(object):
         self.ui = PiUi()
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Doors", "h1")
         self.page.add_textbox("Current Status of Door:", "p")
-        Door_Action = self.page.add_button("Open", self.onupclick)
-        Door_Action = self.page.add_button("Close", self.ondownclick)
-        killSystem = self.page.add_button("Shutdown Door & Server", self.ondownclick)
+        Door_Action = self.page.add_button("Open", self.onopenclick)
+        Door_Action = self.page.add_button("Close", self.oncloseclick)
+        killSystem = self.page.add_button("Shutdown Door & Server", self.onstopclick)
 
     def main_menu(self)
         self.page = self.ui.new_ui_page(title="Control Door")
@@ -37,13 +37,23 @@ class DoorControl(object):
         self.list.add_item("Control Door", chevron=True, onclick=self.page_buttons)
         self.list.add_item("Console", chevron=True, onclick=self.page_console)
         self.ui.done()
+        
+    def onopenclick(self):
+	DoorAction = up
 
-    def main():
-        piui = DoorControl()
-        piui.main()
+    def oncloseclick(self):
+	DoorAction = down
+        
+    def main(self):
+        self.main_menu()
+        self.ui.done()
 
-    if __name__ == '__main__':
-        main()
+def main():
+    piui = DoorControl()
+    piui.main()
+
+if __name__ == '__main__':
+    main()
 
 #GPIO Config
 
