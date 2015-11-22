@@ -61,11 +61,14 @@ if __name__ == '__main__':
 #GPIO Config
 
 #Setting up Board GPIO Pins
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(35,GPIO.OUT)
-GPIO.setup(37,GPIO.OUT)
-GPIO.setup(33,GPIO.IN)#Locked
-GPIO.setup(31,GPIO.IN)#Open
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(22,GPIO.OUT)
+GPIO.setup(23,GPIO.OUT)
+GPIO.setup(21,GPIO.IN) #Locked (From Hall Effect)
+GPIO.setup(17,GPIO.IN) #Open (From Hall Effect)
+GPIO.setup(24,GPIO.OUT) #LED
+GPIO.setup(25,GPIO.OUT) #Buzzer
+GPIO.setup(17,GPIO.IN) #MakeyMakey
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 if killSystem == '1': #Shutdown is queued
@@ -183,7 +186,7 @@ elif BottomHall==0: #Door is locked
 				TopHall=GPIO.input(33)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
-				print 'I couldn't open the door, go check it!'
+				print 'I could not open the door, go check it!'
 				message = "Coop open FAILED!"
 				PushOver(message)
 		if TopHall==0:
@@ -199,7 +202,7 @@ elif TopHall==0: #Door is open
 				BottomHall=GPIO.input(31)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
-				print 'I couldn't close the door, go check it!'
+				print 'I could not close the door, go check it!'
 				message = "Coop close FAILED!"
 				PushOver(message)
 		if BottomHall==0:
