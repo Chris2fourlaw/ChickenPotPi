@@ -2,8 +2,10 @@
 
 Priorty 1=major 2=minor 3=optional
 
-Finish Script=1
+Test PushOver and Website=1
 
-add current status=2
+add current status to webpage=2
+Intergrate MakeyMakey=2
+Intergrate Buzzer and LED=2
 
 add picture to homepage=3
