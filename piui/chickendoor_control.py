@@ -31,7 +31,7 @@ class DoorControl(object):
         self.page.add_textbox("Current Status of Door:", "p")
         self.page.add_button("Open", self.onopenclick)
         self.page.add_button("Close", self.oncloseclick)
-        self.page.add_button("Shutdown Door & Server", self.onkill click)
+        self.page.add_button("Shutdown Door & Server", self.onkillclick)
 
     def main_menu(self)
         self.page = self.ui.new_ui_page(title="Control Door")
