@@ -62,19 +62,20 @@ if __name__ == '__main__':
 
 #Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(22,GPIO.OUT)
-GPIO.setup(23,GPIO.OUT)
-GPIO.setup(21,GPIO.IN) #Locked (From Hall Effect)
 GPIO.setup(17,GPIO.IN) #Open (From Hall Effect)
-GPIO.setup(24,GPIO.OUT) #LED
-GPIO.setup(25,GPIO.OUT) #Buzzer
-GPIO.setup(17,GPIO.IN) #MakeyMakey
+GPIO.setup(18,GPIO.IN) #Locked (From Hall Effect)
+GPIO.setup(22,GPIO.OUT) #Up
+GPIO.setup(23,GPIO.OUT) #Down
+GPIO.setup(24,GPIO.OUT) #Buzzer
+GPIO.setup(27,GPIO.OUT) #LED
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 if killSystem == '1': #Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
-        GPIO.output(37,False)
-        GPIO.output(35,False)
+        GPIO.output(22,False)
+        GPIO.output(23,False)
+        GPIO.output(24,False)
+        GPIO.output(25,False)
         GPIO.cleanup()
         sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
