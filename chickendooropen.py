@@ -8,19 +8,33 @@ import signal
 import sys
 import httplib, urllib #for PushOver
 
+config = open('config.txt').readlines()
+pushover_token=config[0].rstrip()
+pushover_user=config[1]
+
+def PushOver(message):
+    conn = httplib.HTTPSConnection("api.pushover.net:443")
+    conn.request("POST", "/1/messages.json",
+      urllib.urlencode({
+        "token": pushover_token,
+        "user": pushover_user,
+        "message": message,
+      }), { "Content-type": "application/x-www-form-urlencoded" })
+    conn.getresponse()
+
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(22,GPIO.OUT)
-GPIO.setup(23,GPIO.OUT)
+GPIO.setup(22,GPIO.OUT) #Up
+GPIO.setup(23,GPIO.OUT) #Down
 GPIO.setup(21,GPIO.IN) #Locked (From Hall Effect)
 GPIO.setup(17,GPIO.IN) #Open (From Hall Effect)
 
 TimeStart=time.clock()
 runTime=0
 
-while TopHall==1 and runTime<Door_Time:
-				GPIO.output(35,True)
-				GPIO.output(37,False)
-				TopHall=GPIO.input(33)
+while TopHall==1 and runTime<45:
+				GPIO.output(22,True)
+				GPIO.output(23,False)
+				TopHall=GPIO.input(17)
 				runTime=time.clock()-TimeStart
 				
 if 45==runTime:
