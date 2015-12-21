@@ -67,7 +67,8 @@ GPIO.setup(18,GPIO.IN) #Locked (From Hall Effect)
 GPIO.setup(22,GPIO.OUT) #Up
 GPIO.setup(23,GPIO.OUT) #Down
 GPIO.setup(24,GPIO.OUT) #Buzzer
-GPIO.setup(27,GPIO.OUT) #LED
+GPIO.setup(25,GPIO.OUT) #LED
+GPIO.setup(27,GPIO.OUT) #MakeyMakey
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 if killSystem == '1': #Shutdown is queued
