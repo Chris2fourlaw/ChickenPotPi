@@ -22,7 +22,6 @@ if killSystem == '1': #Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
         GPIO.output(22,False)
         GPIO.output(23,False)
-        GPIO.output(25,False)
         GPIO.cleanup()
         sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
