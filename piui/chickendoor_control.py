@@ -146,7 +146,7 @@ if BottomHall==0:print 'Door is locked'
 if TopHall==0:print 'Door is open'
 if BottomHall==1:print 'No magnet sensed on lock'
 if TopHall==1:print 'No magnet sensed top'
-if Door_Action=='up': #Door is locked
+if Door_Action=='up' and BottomHall==0: #Door is locked
 		print 'The door is locked!'
 		print 'The door is going up!'
 		while TopHall==1 and runTime<Door_Time:
@@ -162,7 +162,7 @@ if Door_Action=='up': #Door is locked
 				print 'Door is open!'
 				message = 'Coop opened successfully!'
 				PushOver(message)
-elif Door_Action=='down': #Door is open
+elif Door_Action=='down' and TopHall==0: #Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
 		while BottomHall==1 and runTime<Door_Time:
@@ -176,38 +176,6 @@ elif Door_Action=='down': #Door is open
 				PushOver(message)
 		if BottomHall==0:
 				time.sleep(1)
-				print 'Door is locked!'
-				message = "Coop closed successfully!"
-				PushOver(message)
-elif BottomHall==0: #Door is locked
-		print 'The door is locked!'
-		print 'The door is going up!'
-		while TopHall==1 and runTime<Door_Time:
-				GPIO.output(35,True)
-				GPIO.output(37,False)
-				TopHall=GPIO.input(33)
-				runTime=time.clock()-TimeStart
-		if 45==runTime:
-				print 'I could not open the door, go check it!'
-				message = "Coop open FAILED!"
-				PushOver(message)
-		if TopHall==0:
-				print 'Door is open!'
-				message = "Coop opened successfully!"
-				PushOver(message)
-elif TopHall==0: #Door is open
-		print 'The door is open!'
-		print 'The door is going down!'
-		while BottomHall==1 and runTime<Door_Time:
-				GPIO.output(35,False)
-				GPIO.output(37,True)
-				BottomHall=GPIO.input(31)
-				runTime=time.clock()-TimeStart
-		if 45==runTime:
-				print 'I could not close the door, go check it!'
-				message = "Coop close FAILED!"
-				PushOver(message)
-		if BottomHall==0:
 				print 'Door is locked!'
 				message = "Coop closed successfully!"
 				PushOver(message)
