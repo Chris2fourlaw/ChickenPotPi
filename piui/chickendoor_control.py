@@ -17,7 +17,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 class DoorControl(object):
 
     def __init__(self):
-        self.title = self.page.add_textbox("Control Chicken Coop Doors!", "h1")
+        self.title = None
         self.txt = None
         self.img = None
         #self.ui = DoorControl(img_dir=os.path.join(current_dir, 'imgs'))
@@ -26,8 +26,6 @@ class DoorControl(object):
     def page_buttons(self):    
         self.page = self.ui.new_ui_page(title="Control", prev_text="Back", onprevclick=self.main_menu)
         self.page.add_textbox("Open Or Close Chicken Coop Doors", "h1")
-        self.page.add_textbox("Current Status of Door:", "p")
-        
         up = self.page.add_button("Open", self.onopenclick)
         down = self.page.add_button("Close", self.oncloseclick)
         stop = self.page.add_button("Shutdown Door & Server", self.onkillclick)
@@ -44,13 +42,9 @@ class DoorControl(object):
 
     def onopenclick(self):
 	DoorAction = up
-	self.title.set_text("Opening")
-        print "Opening"
 
     def oncloseclick(self):
 	DoorAction = down
-        self.title.set_text("Closing")
-        print "Closing"
 	
     def onkillclick(self):
 	killSystem = '1'
