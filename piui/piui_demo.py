@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import functools
 import os
 import random
