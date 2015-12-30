@@ -13,6 +13,7 @@ import httplib, urllib #for PushOver
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 class DoorControl(object):
 
     def __init__(self):
@@ -23,26 +24,33 @@ class DoorControl(object):
         #self.src = "chickencoop.png"
     
     def page_buttons(self):    
-        self.page = self.ui.new_ui_page(title="Control Door")
-        self.ui = DoorControl()
-        self.title = self.page.add_textbox("Open Or Close Chicken Coop Doors", "h1")
+        self.page = self.ui.new_ui_page(title="Control", prev_text="Back", onprevclick=self.main_menu)
+        self.page.add_textbox("Open Or Close Chicken Coop Doors", "h1")
         self.page.add_textbox("Current Status of Door:", "p")
-        self.page.add_button("Open", self.onopenclick)
-        self.page.add_button("Close", self.oncloseclick)
-        self.page.add_button("Shutdown Door & Server", self.onkillclick)
+        
+        up = self.page.add_button("Open", self.onopenclick)
+        down = self.page.add_button("Close", self.oncloseclick)
+        stop = self.page.add_button("Shutdown Door & Server", self.onkillclick)
 
     def main_menu(self):
-        self.page = self.ui.new_ui_page(title="Control Door")
+        self.page = self.ui.new_ui_page(title="Chicken Door")
         self.list = self.page.add_list()
         self.list.add_item("Control Door", chevron=True, onclick=self.page_buttons)
-        self.list.add_item("Console", chevron=True, onclick=self.page_console)
         self.ui.done()
-        
+
+    def main(self):
+        self.main_menu()
+        self.ui.done()
+
     def onopenclick(self):
 	DoorAction = up
+	self.title.set_text("Opening")
+        print "Opening"
 
     def oncloseclick(self):
 	DoorAction = down
+        self.title.set_text("Closing")
+        print "Closing"
 	
     def onkillclick(self):
 	killSystem = '1'
