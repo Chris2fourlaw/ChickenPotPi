@@ -31,7 +31,7 @@ class DoorControl(object):
         self.page.add_button("Close", self.oncloseclick)
         self.page.add_button("Shutdown Door & Server", self.onkillclick)
 
-    def main_menu(self)
+    def main_menu(self):
         self.page = self.ui.new_ui_page(title="Control Door")
         self.list = self.page.add_list()
         self.list.add_item("Control Door", chevron=True, onclick=self.page_buttons)
