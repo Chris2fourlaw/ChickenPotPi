@@ -29,25 +29,25 @@ def killSystem(): #Shutdown is queued
 def openDoor():
 	TimeStart=time.clock()
 	runTime=0
-	while runTime<Door_Time:
+	runTime=time.clock()-TimeStart
+	while 1:
 		GPIO.output(22,True)
 		GPIO.output(23,False)
-		runTime=time.clock()-TimeStart
 		if 45==runTime:
-            GPIO.output(22,False)
-            GPIO.output(23,False)
+			GPIO.output(22,False)
+			GPIO.output(23,False)
 			print 'Something went wrong, go check the door!'
 
 def closeDoor():
 	TimeStart=time.clock()
 	runTime=0
-	while runTime<Door_Time:
+	runTime=time.clock()-TimeStart
+	while 1:
 		GPIO.output(22,False)
 		GPIO.output(23,True)
-		runTime=time.clock()-TimeStart
 		if 45==runTime:
-            GPIO.output(22,False)
-            GPIO.output(23,False)
+			GPIO.output(22,False)
+			GPIO.output(23,False)
 			print 'Something went wrong, go check the door!'
 
 #Web Server Config
