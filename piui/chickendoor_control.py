@@ -41,20 +41,20 @@ class DoorControl(object):
         self.ui.done()
 
     def onupclick(self):
-        DoorAction = up
+        up = '1'
         self.title.set_text("Opening")
         print "Open"
 
     def ondownclick(self):
-        DoorAction = down
+        down = '1'
         self.title.set_text("Closing")
         print "Close"
     
     def onkillclick(self):
-	killSystem = '1'
+        killSystem = '1'
         self.title.set_text("Killing Server")
         print "Killing"
-        
+
 def main():
   piui = DoorControl()
   piui.main()
@@ -113,7 +113,7 @@ if BottomHall==0:print 'Door is locked'
 if TopHall==0:print 'Door is open'
 if BottomHall==1:print 'No magnet sensed on lock'
 if TopHall==1:print 'No magnet sensed top'
-if Door_Action=='up' and BottomHall==0: #Door is locked
+if up=='1' and BottomHall==0: #Door is locked
 		print 'The door is locked!'
 		print 'The door is going up!'
 		while TopHall==1 and runTime<Door_Time:
@@ -122,14 +122,16 @@ if Door_Action=='up' and BottomHall==0: #Door is locked
 				TopHall=GPIO.input(33)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
+				up = '0'
 				print 'Something went wrong, go check the door!'
 				message = 'Coop open FAILED!'
 				PushOver(message)
 		if TopHall==0:
+				up = '0'
 				print 'Door is open!'
 				message = 'Coop opened successfully!'
 				PushOver(message)
-elif Door_Action=='down' and TopHall==0: #Door is open
+elif down=='1' and TopHall==0: #Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
 		while BottomHall==1 and runTime<Door_Time:
@@ -138,10 +140,12 @@ elif Door_Action=='down' and TopHall==0: #Door is open
 				BottomHall=GPIO.input(31)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
+				down = '0'
 				print 'Something went wrong, go check the door!'
 				message = "Coop close FAILED!"
 				PushOver(message)
 		if BottomHall==0:
+				down = '0'
 				time.sleep(1)
 				print 'Door is locked!'
 				message = "Coop closed successfully!"
