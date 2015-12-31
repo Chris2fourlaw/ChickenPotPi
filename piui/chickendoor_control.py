@@ -40,6 +40,7 @@ class DoorControl(object):
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!", "h1")
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
+        kill = self.page.add_button("Kill Server", self.onkillclick)
         self.img = self.page.add_image("chickens.png")
 
     def main_menu(self):
@@ -53,12 +54,12 @@ class DoorControl(object):
         self.ui.done()
 
     def onupclick(self):
-        open()
+        openDoor()
         self.title.set_text("Opening")
         print "Open"
 
     def ondownclick(self):
-        close()
+        closeDoor()
         self.title.set_text("Closing")
         print "Close"
     
@@ -112,7 +113,7 @@ if BottomHall==0:print 'Door is locked'
 if TopHall==0:print 'Door is open'
 if BottomHall==1:print 'No magnet sensed on lock'
 if TopHall==1:print 'No magnet sensed top'
-def open(): 
+def openDoor(): 
 	if BottomHall==0: #Door is locked
 		print 'The door is locked!'
 		print 'The door is going up!'
@@ -131,23 +132,23 @@ def open():
 				print 'Door is open!'
 				message = 'Coop opened successfully!'
 				PushOver(message)
-def close():
-#	if TopHall==0: #Door is open
-#		print 'The door is open!'
-#		print 'The door is going down!'
-#		while BottomHall==1 and runTime<Door_Time:
+def closeDoor():
+	if TopHall==0: #Door is open
+		print 'The door is open!'
+		print 'The door is going down!'
+		while BottomHall==1 and runTime<Door_Time:
 				GPIO.output(35,False)
 				GPIO.output(37,True)
 				BottomHall=GPIO.input(31)
 				runTime=time.clock()-TimeStart
-#		if 45==runTime:
-#				down = '0'
-#				print 'Something went wrong, go check the door!'
-#				message = "Coop close FAILED!"
-#				PushOver(message)
-#		if BottomHall==0:
-#				down = '0'
-#				time.sleep(1)
-#				print 'Door is locked!'
-#				message = "Coop closed successfully!"
-#				PushOver(message)
+		if 45==runTime:
+				down = '0'
+				print 'Something went wrong, go check the door!'
+				message = "Coop close FAILED!"
+				PushOver(message)
+		if BottomHall==0:
+				down = '0'
+				time.sleep(1)
+				print 'Door is locked!'
+				message = "Coop closed successfully!"
+				PushOver(message)
