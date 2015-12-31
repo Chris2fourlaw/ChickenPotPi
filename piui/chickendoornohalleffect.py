@@ -30,7 +30,7 @@ def openDoor():
 	TimeStart=time.clock()
 	runTime=0
 	runTime=time.clock()-TimeStart
-	while 1:
+	while GPIO.output(23)==0:
 		GPIO.output(22,True)
 		GPIO.output(23,False)
 		if 45==runTime:
@@ -42,7 +42,7 @@ def closeDoor():
 	TimeStart=time.clock()
 	runTime=0
 	runTime=time.clock()-TimeStart
-	while 1:
+	while GPIO.output(22)==0:
 		GPIO.output(22,False)
 		GPIO.output(23,True)
 		if 45==runTime:
