@@ -34,11 +34,10 @@ def openDoor():
 	runTime=time.clock()-TimeStart
 	GPIO.output(22,GPIO.LOW)
 	GPIO.output(23,GPIO.LOW)
-	while 1:
-		GPIO.output(22,GPIO.HIGH)
-		if 45==runTime:
-			GPIO.output(22,GPIO.LOW)
-			print 'Something went wrong, go check the door!'
+	GPIO.output(22,GPIO.HIGH)
+	if 45==runTime:
+		GPIO.output(22,GPIO.LOW)
+		print 'Something went wrong, go check the door!'
 
 def closeDoor():
 	TimeStart=time.clock()
@@ -46,11 +45,10 @@ def closeDoor():
 	runTime=time.clock()-TimeStart
 	GPIO.output(22,GPIO.LOW)
 	GPIO.output(23,GPIO.LOW)
-	while 1:
-		GPIO.output(23,GPIO.HIGH)
-		if 45==runTime:
-			GPIO.output(23,GPIO.LOW)
-			print 'Something went wrong, go check the door!'
+	GPIO.output(23,GPIO.HIGH)
+	if 45==runTime:
+		GPIO.output(23,GPIO.LOW)
+		print 'Something went wrong, go check the door!'
 
 #Web Server Config
 
