@@ -15,14 +15,14 @@ import httplib, urllib #for PushOver
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(22,GPIO.OUT) #Up
 GPIO.setup(23,GPIO.OUT) #Down
-GPIO.output(22,False)
-GPIO.output(23,False)
+GPIO.output(22,GPIO.LOW)
+GPIO.output(23,GPIO.LOW)
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 def killSystem(): #Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
-        GPIO.output(22,False)
-        GPIO.output(23,False)
+        GPIO.output(22,GPIO.LOW)
+        GPIO.output(23,GPIO.LOW)
         GPIO.cleanup()
         sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
@@ -32,24 +32,24 @@ def openDoor():
 	TimeStart=time.clock()
 	runTime=0
 	runTime=time.clock()-TimeStart
-	GPIO.output(22,False)
-	GPIO.output(23,False)
+	GPIO.output(22,GPIO.LOW)
+	GPIO.output(23,GPIO.LOW)
 	while 1:
-		GPIO.output(22,True)
+		GPIO.output(22,GPIO.HIGH)
 		if 45==runTime:
-			GPIO.output(22,False)
+			GPIO.output(22,GPIO.LOW)
 			print 'Something went wrong, go check the door!'
 
 def closeDoor():
 	TimeStart=time.clock()
 	runTime=0
 	runTime=time.clock()-TimeStart
-	GPIO.output(22,False)
-	GPIO.output(23,False)
+	GPIO.output(22,GPIO.LOW)
+	GPIO.output(23,GPIO.LOW)
 	while 1:
-		GPIO.output(23,True)
+		GPIO.output(23,GPIO.HIGH)
 		if 45==runTime:
-			GPIO.output(23,False)
+			GPIO.output(23,GPIO.LOW)
 			print 'Something went wrong, go check the door!'
 
 #Web Server Config
