@@ -78,6 +78,18 @@ class DoorControl(object):
     def main(self):
         self.main_menu()
         self.ui.done()
+    def onupclick(self):
+        openDoor()
+        self.title.set_text("Opening")
+        print "Open"
+    def ondownclick(self):
+        closeDoor()
+        self.title.set_text("Closing")
+        print "Close"
+    def onkillclick(self):
+        killSystem()
+        self.title.set_text("Killing Server")
+        print "Killing"
 
 def main():
   piui = DoorControl()
