@@ -15,6 +15,8 @@ import httplib, urllib #for PushOver
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(22,GPIO.OUT) #Up
 GPIO.setup(23,GPIO.OUT) #Down
+GPIO.output(22,False)
+GPIO.output(23,False)
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 def killSystem(): #Shutdown is queued
@@ -30,7 +32,7 @@ def openDoor():
 	TimeStart=time.clock()
 	runTime=0
 	runTime=time.clock()-TimeStart
-	GPIO.output(23,False)
+	GPIO.output(22,False)
 	GPIO.output(23,False)
 	while 1:
 		GPIO.output(22,True)
