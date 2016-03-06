@@ -6,7 +6,6 @@ Test PushOver and Website=1
 Close/Open Door by Time of Day=1
 
 add current status to webpage=2
-Intergrate MakeyMakey=2
 Intergrate Buzzer and LED=2
 Disable System Option=2
 
