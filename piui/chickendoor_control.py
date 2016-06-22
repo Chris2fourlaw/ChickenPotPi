@@ -33,7 +33,7 @@ def killSystem(): #Shutdown is queued
 
 #PushOver Config
 
-#config.txt included in .gitignore first line is the token, the second line is the key
+#config.txt first line is the token, the second line is the key
 config = open('config.txt').readlines()
 pushover_token=config[0].rstrip()
 pushover_user=config[1]
