@@ -9,7 +9,7 @@ import signal
 import sys
 import httplib, urllib #for PushOver
 
-#GPIO Config
+#RPi.GPIO Config
 
 #Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
