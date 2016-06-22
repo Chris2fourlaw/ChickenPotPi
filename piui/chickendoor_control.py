@@ -19,7 +19,7 @@ GPIO.setup(22,GPIO.OUT) #Up
 GPIO.setup(23,GPIO.OUT) #Down
 GPIO.setup(24,GPIO.OUT) #Buzzer
 GPIO.setup(25,GPIO.OUT) #LED
-GPIO.setup(27,GPIO.IN) #MakeyMakey
+GPIO.setup(27,GPIO.IN) #Button (Outdoor Door Toggle)
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 def killSystem(): #Shutdown is queued
@@ -141,7 +141,7 @@ class DoorControl(object):
         closeDoor()
         self.title.set_text("Closing")
         print "Close"
-    
+
     def onkillclick(self):
         killSystem()
         self.title.set_text("Killing Server")
