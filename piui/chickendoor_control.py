@@ -7,31 +7,49 @@ import RPi.GPIO as GPIO
 import time
 import signal
 import sys
-import httplib, urllib #for PushOver
+import httplib, urllib # for PushOver
 
-#RPi.GPIO Config
+# RPi.GPIO Config
 
-#Setting up Board GPIO Pins
+# Constants for GPIO Pins
+HALL_TOP = 17
+HALL_BOTTOM = 18
+MOTOR_UP = 22
+MOTOR_DOWN = 23
+BUZZER = 24
+BUTTON = 25
+HALL_ON = 0 # Active Low
+HALL_OFF = 1 # Active Low
+
+# Other Constants
+MAX_DOOR_TIME = 45
+
+# Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(17,GPIO.IN) #Open (From Hall Effect)
-GPIO.setup(18,GPIO.IN) #Locked (From Hall Effect)
-GPIO.setup(22,GPIO.OUT) #Up
-GPIO.setup(23,GPIO.OUT) #Down
-GPIO.setup(24,GPIO.OUT) #Buzzer
-GPIO.setup(25,GPIO.IN) #Button (Outdoor Door Toggle)
+GPIO.setup(HALL_TOP,GPIO.IN) # Open
+GPIO.setup(HALL_BOTTOM,GPIO.IN) # Closed
+GPIO.setup(MOTOR_UP,GPIO.OUT)
+GPIO.setup(MOTOR_DOWN,GPIO.OUT)
+GPIO.setup(BUZZER,GPIO.OUT)
+GPIO.setup(BUTTON,GPIO.IN) # Button
 
-#Clean kill of script function (Stops Motor, cleans GPIO)
-def killSystem(): #Shutdown is queued
+# False all output pins
+GPIO.output(MOTOR_UP,False)
+GPIO.output(MOTOR_DOWN,False)
+GPIO.output(BUZZER,False)
+
+# Clean kill of script function (Stops Motor, cleans GPIO)
+def killSystem(): # Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
-        GPIO.output(22,False)
-        GPIO.output(23,False)
-        GPIO.output(24,False)
+        GPIO.output(MOTOR_UP,False)
+        GPIO.output(MOTOR_DOWN,False)
+        GPIO.output(BUZZER,False)
         GPIO.cleanup()
         sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
-#PushOver Config
+# PushOver Config
 
-#config.txt first line is the token, the second line is the key
+# config.txt first line is the token, the second line is the key
 config = open('config.txt').readlines()
 pushover_token=config[0].rstrip()
 pushover_user=config[1]
@@ -47,33 +65,27 @@ def PushOver(message):
     conn.getresponse()
 
 #Motor Config
-
-BottomHall=GPIO.input(18)
-TopHall=GPIO.input(17)
-if BottomHall==0:print 'Door is locked'
-if TopHall==0:print 'Door is open'
-if BottomHall==1:print 'No magnet sensed on lock'
-if TopHall==1:print 'No magnet sensed top'
 def openDoor():
-	TimeStart=time.clock()
+	TimeStart = time.clock()
 	runTime=0
-	if BottomHall==0: #Door is locked
-		print 'The door is locked!'
+	if GPIO.input(HALL_BOTTOM) == HALL_ON: #Door is closed
+		print 'The door is closed!'
 		print 'The door is going up!'
-		while TopHall==1 and runTime<Door_Time: # TopHall is 1 when no magent is near
-				GPIO.output(22,True)
-				GPIO.output(23,False)
-				runTime=time.clock()-TimeStart
-		if 45==runTime:
-				up = '0'
-				print 'Something went wrong, go check the door!'
-				message = 'Coop open FAILED!'
-				PushOver(message)
+		GPIO.output(MOTOR_UP,True)
+		GPIO.output(MOTOR_DOWN,False)
+		while GPIO.input(HALL_TOP) == HALL_OFF and runTime < MAX_DOOR_TIME:
+			runTime = time.clock()-TimeStart
+		GPIO.output(MOTOR_UP,False)
 		if TopHall==0:
-				up = '0'
-				print 'Door is open!'
-				message = 'Coop opened successfully!'
-				PushOver(message)
+			up = '0'
+			print 'Door is open!'
+			message = 'Coop opened successfully!'
+			PushOver(message)
+		else:
+			up = '0'
+			print 'Something went wrong, go check the door!'
+			message = 'Coop open FAILED!'
+			PushOver(message)
 def closeDoor():
 	TimeStart=time.clock()
 	runTime=0
@@ -92,7 +104,7 @@ def closeDoor():
 		if BottomHall==0:
 				down = '0'
 				time.sleep(1)
-				print 'Door is locked!'
+				print 'Door is closed!'
 				message = "Coop closed successfully!"
 				PushOver(message)
 
