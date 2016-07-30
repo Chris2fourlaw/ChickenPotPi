@@ -67,46 +67,49 @@ def PushOver(message):
 #Motor Config
 def openDoor():
 	TimeStart = time.clock()
-	runTime=0
-	if GPIO.input(HALL_BOTTOM) == HALL_ON: #Door is closed
+	runTime = 0
+	if GPIO.input(HALL_BOTTOM) == HALL_ON: # Door is closed
 		print 'The door is closed!'
 		print 'The door is going up!'
-		GPIO.output(MOTOR_UP,True)
-		GPIO.output(MOTOR_DOWN,False)
+		GPIO.output(MOTOR_DOWN, False)
+		GPIO.output(MOTOR_UP, True)
 		while GPIO.input(HALL_TOP) == HALL_OFF and runTime < MAX_DOOR_TIME:
-			runTime = time.clock()-TimeStart
-		GPIO.output(MOTOR_UP,False)
-		if TopHall==0:
-			up = '0'
+			runTime = time.clock() - TimeStart
+		GPIO.output(MOTOR_UP, False)
+		time.sleep(1) # Wait for bounce to settle
+		if GPIO.input(HALL_TOP) == HALL_ON:
+#			up = '0'
 			print 'Door is open!'
 			message = 'Coop opened successfully!'
 			PushOver(message)
 		else:
-			up = '0'
-			print 'Something went wrong, go check the door!'
+#			up = '0'
+			print 'Something went wrong while opening! Go check the door!'
 			message = 'Coop open FAILED!'
 			PushOver(message)
+
 def closeDoor():
-	TimeStart=time.clock()
-	runTime=0
-	if TopHall==0: #Door is open
+	TimeStart = time.clock()
+	runTime = 0
+	if GPIO.input(HALL_TOP) == HALL_ON: # Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
-		while BottomHall==1 and runTime<Door_Time:
-				GPIO.output(22,False)
-				GPIO.output(23,True)
-				runTime=time.clock()-TimeStart
-		if 45==runTime:
-				down = '0'
-				print 'Something went wrong, go check the door!'
-				message = "Coop close FAILED!"
-				PushOver(message)
-		if BottomHall==0:
-				down = '0'
-				time.sleep(1)
-				print 'Door is closed!'
-				message = "Coop closed successfully!"
-				PushOver(message)
+		GPIO.output(MOTOR_UP, False)
+		GPIO.output(MOTOR_DOWN, True)
+		while GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME:
+			runTime = time.clock() - TimeStart
+		GPIO.output(MOTOR_DOWN, False)
+		time.sleep(1) # Wait for bounce to settle
+		if GPIO.input(HALL_BOTTOM) == HALL_ON:
+#			down = '0'
+			print 'Door is closed!'
+			message = 'Coop closed successfully!'
+			PushOver(message)
+		else:
+#			down = '0'
+			print 'Something went wrong while closing! Go check the door!'
+			message = 'Coop close FAILED!'
+			PushOver(message)
 
 #Web Server Config
 
@@ -123,7 +126,7 @@ class DoorControl(object):
         self.src = "chickens.png"
 
     def page_buttons(self):
-        self.page = self.ui.new_ui_page(title="Control", prev_text="Back", onprevclick=self.main_menu)
+        self.page = self.ui.new_ui_page(title = "Control", prev_text = "Back", onprevclick = self.main_menu)
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!", "h1")
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
@@ -131,9 +134,9 @@ class DoorControl(object):
         self.img = self.page.add_image("chickens.png")
 
     def main_menu(self):
-        self.page = self.ui.new_ui_page(title="Chicken Control Center")
+        self.page = self.ui.new_ui_page(title = "Chicken Control Center")
         self.list = self.page.add_list()
-        self.list.add_item("Control", chevron=True, onclick=self.page_buttons)
+        self.list.add_item("Control", chevron = True, onclick = self.page_buttons)
         self.ui.done()
 
     def main(self):
