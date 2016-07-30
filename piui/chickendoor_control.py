@@ -60,10 +60,9 @@ def openDoor():
 	if BottomHall==0: #Door is locked
 		print 'The door is locked!'
 		print 'The door is going up!'
-		while TopHall==1 and runTime<Door_Time:
-				GPIO.output(35,True)
-				GPIO.output(37,False)
-				TopHall=GPIO.input(33)
+		while TopHall==1 and runTime<Door_Time: # TopHall is 1 when no magent is near
+				GPIO.output(22,True)
+				GPIO.output(23,False)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
 				up = '0'
@@ -82,9 +81,8 @@ def closeDoor():
 		print 'The door is open!'
 		print 'The door is going down!'
 		while BottomHall==1 and runTime<Door_Time:
-				GPIO.output(35,False)
-				GPIO.output(37,True)
-				BottomHall=GPIO.input(31)
+				GPIO.output(22,False)
+				GPIO.output(23,True)
 				runTime=time.clock()-TimeStart
 		if 45==runTime:
 				down = '0'
