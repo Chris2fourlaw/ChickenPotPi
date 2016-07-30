@@ -18,8 +18,7 @@ GPIO.setup(18,GPIO.IN) #Locked (From Hall Effect)
 GPIO.setup(22,GPIO.OUT) #Up
 GPIO.setup(23,GPIO.OUT) #Down
 GPIO.setup(24,GPIO.OUT) #Buzzer
-GPIO.setup(25,GPIO.OUT) #LED
-GPIO.setup(27,GPIO.IN) #Button (Outdoor Door Toggle)
+GPIO.setup(25,GPIO.IN) #Button (Outdoor Door Toggle)
 
 #Clean kill of script function (Stops Motor, cleans GPIO)
 def killSystem(): #Shutdown is queued
@@ -27,7 +26,6 @@ def killSystem(): #Shutdown is queued
         GPIO.output(22,False)
         GPIO.output(23,False)
         GPIO.output(24,False)
-        GPIO.output(25,False)
         GPIO.cleanup()
         sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
