@@ -7,7 +7,8 @@ import RPi.GPIO as GPIO
 import time
 import signal
 import sys
-import httplib, urllib # for PushOver
+import httplib # for PushOver
+import urllib # for PushOver
 
 # RPi.GPIO Config
 
@@ -18,11 +19,14 @@ MOTOR_UP = 22
 MOTOR_DOWN = 23
 BUZZER = 24
 BUTTON = 25
-HALL_ON = 0 # Active Low
-HALL_OFF = 1 # Active Low
+#HALL_ON = 0 # Active Low
+#HALL_OFF = 1 # Active Low
+HALL_ON = 1 # FIX ME
+HALL_OFF = 0 # FIX ME
 
 # Other Constants
 MAX_DOOR_TIME = 45
+BEEP_TIME = 0.35
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
@@ -64,17 +68,29 @@ def PushOver(message):
       }), { "Content-type": "application/x-www-form-urlencoded" })
     conn.getresponse()
 
-#Motor Config
-def openDoor():
+# GPIO Output Config
+
+def stopDoor():
+	GPIO.output(MOTOR_UP, False)
+	GPIO.output(MOTOR_DOWN, False)
+	GPIO.output(BUZZER, False)
+	print 'Door stopped!'
+
+def openDoor(force=False):
 	TimeStart = time.clock()
 	runTime = 0
-	if GPIO.input(HALL_BOTTOM) == HALL_ON: # Door is closed
+	if GPIO.input(HALL_BOTTOM) == HALL_ON or force == True: # Door is closed
 		print 'The door is closed!'
 		print 'The door is going up!'
 		GPIO.output(MOTOR_DOWN, False)
 		GPIO.output(MOTOR_UP, True)
 		while GPIO.input(HALL_TOP) == HALL_OFF and runTime < MAX_DOOR_TIME:
-			runTime = time.clock() - TimeStart
+			time.sleep(BEEP_TIME)
+                        GPIO.output(BUZZER, True)
+                        time.sleep(BEEP_TIME)
+                        GPIO.output(BUZZER, False)
+			if not force:
+				runTime = time.clock() - TimeStart
 		GPIO.output(MOTOR_UP, False)
 		time.sleep(1) # Wait for bounce to settle
 		if GPIO.input(HALL_TOP) == HALL_ON:
@@ -88,16 +104,21 @@ def openDoor():
 			message = 'Coop open FAILED!'
 			PushOver(message)
 
-def closeDoor():
+def closeDoor(force=False):
 	TimeStart = time.clock()
 	runTime = 0
-	if GPIO.input(HALL_TOP) == HALL_ON: # Door is open
+	if GPIO.input(HALL_TOP) == HALL_ON or force == True: # Door is open
 		print 'The door is open!'
 		print 'The door is going down!'
 		GPIO.output(MOTOR_UP, False)
 		GPIO.output(MOTOR_DOWN, True)
 		while GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME:
-			runTime = time.clock() - TimeStart
+			time.sleep(BEEP_TIME)	
+			GPIO.output(BUZZER, True)
+			time.sleep(BEEP_TIME)
+			GPIO.output(BUZZER, False)
+			if not force:
+				runTime = time.clock() - TimeStart
 		GPIO.output(MOTOR_DOWN, False)
 		time.sleep(1) # Wait for bounce to settle
 		if GPIO.input(HALL_BOTTOM) == HALL_ON:
@@ -130,6 +151,9 @@ class DoorControl(object):
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!", "h1")
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
+	fup = self.page.add_button("Force Open &uarr;", self.onupforceclick)
+	fdown = self.page.add_button("Force Close &darr;", self.ondownforceclick)
+	stop = self.page.add_button("Stop Door", self.onstopclick)
         kill = self.page.add_button("Kill Server", self.onkillclick)
         self.img = self.page.add_image("chickens.png")
 
@@ -144,19 +168,35 @@ class DoorControl(object):
         self.ui.done()
 
     def onupclick(self):
-        openDoor()
         self.title.set_text("Opening")
         print "Open"
+	openDoor()
 
     def ondownclick(self):
-        closeDoor()
         self.title.set_text("Closing")
         print "Close"
+	closeDoor()
+
+    def onupforceclick(self):
+        self.title.set_text("Force Open")
+        print "Force Open"
+	openDoor(force=True)
+
+    def ondownforceclick(self):
+        self.title.set_text("Force Close")
+        print "Force Close"
+	closeDoor(force=True)
+
+    def onstopclick(self):
+        self.title.set_text("Stopping Door")
+        print "Stopping"
+	stopDoor()
 
     def onkillclick(self):
-        killSystem()
         self.title.set_text("Killing Server")
         print "Killing"
+	time.sleep(0.5)
+	killSystem()
 
 def main():
   piui = DoorControl()
