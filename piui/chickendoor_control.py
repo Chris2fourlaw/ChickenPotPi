@@ -7,8 +7,8 @@ import RPi.GPIO as GPIO
 import time
 import signal
 import sys
-import httplib # for PushOver
-import urllib # for PushOver
+import httplib  # for PushOver
+import urllib  # for PushOver
 
 # RPi.GPIO Config
 
@@ -19,10 +19,10 @@ MOTOR_UP = 22
 MOTOR_DOWN = 23
 BUZZER = 24
 BUTTON = 25
-#HALL_ON = 0 # Active Low
-#HALL_OFF = 1 # Active Low
-HALL_ON = 1 # FIX ME
-HALL_OFF = 0 # FIX ME
+# HALL_ON = 0  # Active Low
+# HALL_OFF = 1  # Active Low
+HALL_ON = 1  # FIX ME
+HALL_OFF = 0  # FIX ME
 
 # Other Constants
 MAX_DOOR_TIME = 45
@@ -30,20 +30,21 @@ BEEP_TIME = 0.35
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(HALL_TOP,GPIO.IN) # Open
-GPIO.setup(HALL_BOTTOM,GPIO.IN) # Closed
-GPIO.setup(MOTOR_UP,GPIO.OUT)
-GPIO.setup(MOTOR_DOWN,GPIO.OUT)
-GPIO.setup(BUZZER,GPIO.OUT)
-GPIO.setup(BUTTON,GPIO.IN) # Button
+GPIO.setup(HALL_TOP, GPIO.IN)  # Open
+GPIO.setup(HALL_BOTTOM, GPIO.IN)  # Closed
+GPIO.setup(MOTOR_UP, GPIO.OUT)
+GPIO.setup(MOTOR_DOWN, GPIO.OUT)
+GPIO.setup(BUZZER, GPIO.OUT)
+GPIO.setup(BUTTON, GPIO.IN)  # Button
 
 # False all output pins
 GPIO.output(MOTOR_UP, False)
 GPIO.output(MOTOR_DOWN, False)
 GPIO.output(BUZZER, False)
 
+
 # Clean kill of script function (Stops Motor, cleans GPIO)
-def killSystem(): # Shutdown is queued
+def killSystem():  # Shutdown is queued
     print 'Performing safe shutoff of Door & Server!'
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
@@ -58,17 +59,20 @@ config = open('config.txt').readlines()
 pushover_token = config[0].rstrip()
 pushover_user = config[1]
 
+
 def PushOver(message):
     conn = httplib.HTTPSConnection("api.pushover.net:443")
     conn.request("POST", "/1/messages.json",
-      urllib.urlencode({
-        "token": pushover_token,
-        "user": pushover_user,
-        "message": message,
-      }), { "Content-type": "application/x-www-form-urlencoded" })
+                 urllib.urlencode({"token": pushover_token,
+                                   "user": pushover_user,
+                                   "message": message,
+                                   }),
+                 {"Content-type": "application/x-www-form-urlencoded"})
     conn.getresponse()
 
+
 # GPIO Output Config
+
 
 def stopDoor():
     GPIO.output(MOTOR_UP, False)
@@ -76,10 +80,11 @@ def stopDoor():
     GPIO.output(BUZZER, False)
     print 'Door stopped!'
 
+
 def openDoor(force=False):
     TimeStart = time.clock()
     runTime = 0
-    if GPIO.input(HALL_BOTTOM) == HALL_ON or force == True: # Door is closed
+    if GPIO.input(HALL_BOTTOM) == HALL_ON or force:  # Door is closed
         print 'The door is closed!'
         print 'The door is going up!'
         GPIO.output(MOTOR_DOWN, False)
@@ -92,22 +97,23 @@ def openDoor(force=False):
             if not force:
                 runTime = time.clock() - TimeStart
         GPIO.output(MOTOR_UP, False)
-        time.sleep(1) # Wait for bounce to settle
+        time.sleep(1)  # Wait for bounce to settle
         if GPIO.input(HALL_TOP) == HALL_ON:
-#           up = '0'
+            # up = '0'
             print 'Door is open!'
             message = 'Coop opened successfully!'
             PushOver(message)
         else:
-#           up = '0'
+            # up = '0'
             print 'Something went wrong while opening! Go check the door!'
             message = 'Coop open FAILED!'
             PushOver(message)
 
+
 def closeDoor(force=False):
     TimeStart = time.clock()
     runTime = 0
-    if GPIO.input(HALL_TOP) == HALL_ON or force == True: # Door is open
+    if GPIO.input(HALL_TOP) == HALL_ON or force:  # Door is open
         print 'The door is open!'
         print 'The door is going down!'
         GPIO.output(MOTOR_UP, False)
@@ -120,14 +126,14 @@ def closeDoor(force=False):
             if not force:
                 runTime = time.clock() - TimeStart
         GPIO.output(MOTOR_DOWN, False)
-        time.sleep(1) # Wait for bounce to settle
+        time.sleep(1)  # Wait for bounce to settle
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
-#           down = '0'
+            # down = '0'
             print 'Door is closed!'
             message = 'Coop closed successfully!'
             PushOver(message)
         else:
-#           down = '0'
+            # down = '0'
             print 'Something went wrong while closing! Go check the door!'
             message = 'Coop close FAILED!'
             PushOver(message)
@@ -147,9 +153,9 @@ class DoorControl(object):
         self.src = "chickens.png"
 
     def page_buttons(self):
-        self.page = self.ui.new_ui_page(title = "Control",
-                                        prev_text = "Back",
-                                        onprevclick = self.main_menu)
+        self.page = self.ui.new_ui_page(title="Control",
+                                        prev_text="Back",
+                                        onprevclick=self.main_menu)
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!",
                                            "h1")
         up = self.page.add_button("Open &uarr;", self.onupclick)
@@ -162,10 +168,10 @@ class DoorControl(object):
         self.img = self.page.add_image("chickens.png")
 
     def main_menu(self):
-        self.page = self.ui.new_ui_page(title = "Chicken Control Center")
+        self.page = self.ui.new_ui_page(title="Chicken Control Center")
         self.list = self.page.add_list()
-        self.list.add_item("Control", chevron = True,
-                           onclick = self.page_buttons)
+        self.list.add_item("Control", chevron=True,
+                           onclick=self.page_buttons)
         self.ui.done()
 
     def main(self):
@@ -203,9 +209,10 @@ class DoorControl(object):
         time.sleep(0.5)
         killSystem()
 
+
 def main():
-  piui = DoorControl()
-  piui.main()
+    piui = DoorControl()
+    piui.main()
 
 if __name__ == '__main__':
     main()
