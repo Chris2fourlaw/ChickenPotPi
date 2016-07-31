@@ -93,8 +93,8 @@ def openDoor(force=False):
         print 'The door is going up!'
         GPIO.output(MOTOR_DOWN, False)
         GPIO.output(MOTOR_UP, True)
-        while (GPIO.input(HALL_TOP) == HALL_OFF and runTime < MAX_DOOR_TIME
-               and cancel == False):
+        while (GPIO.input(HALL_TOP) == HALL_OFF and runTime < MAX_DOOR_TIME and
+               cancel == False):
             time.sleep(BEEP_TIME)
             GPIO.output(BUZZER, True)
             time.sleep(BEEP_TIME)
@@ -124,8 +124,8 @@ def closeDoor(force=False):
         print 'The door is going down!'
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
-        while (GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME
-               and cancel == False):
+        while (GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME and
+               cancel == False):
             time.sleep(BEEP_TIME)
             GPIO.output(BUZZER, True)
             time.sleep(BEEP_TIME)
