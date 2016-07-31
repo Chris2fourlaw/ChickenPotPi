@@ -29,7 +29,7 @@ MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
 
 # Global Variables
-cancel = False
+global cancel = False
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
@@ -39,6 +39,8 @@ GPIO.setup(MOTOR_UP, GPIO.OUT)
 GPIO.setup(MOTOR_DOWN, GPIO.OUT)
 GPIO.setup(BUZZER, GPIO.OUT)
 GPIO.setup(BUTTON, GPIO.IN)  # Button
+GPIO.add_event_detect(BUTTON,GPIO.RISING,callback=buttonCallback,
+                      bouncetime=300)
 
 # False all output pins
 GPIO.output(MOTOR_UP, False)
@@ -74,8 +76,16 @@ def PushOver(message):
     conn.getresponse()
 
 
-# GPIO Output Config
+# GPIO Config
 
+
+def buttonCallback(channel):
+    if GPIO.input(HALL_BOTTOM) == HALL_ON:
+        openDoor()
+    elif GPIO.input(HALL_TOP) == HALL_ON:
+        closeDoor()
+    else:
+        openDoor(force)
 
 def stopDoor():
     global cancel
