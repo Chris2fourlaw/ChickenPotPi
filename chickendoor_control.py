@@ -78,6 +78,7 @@ def PushOver(message):
 
 
 def stopDoor():
+    global cancel
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
     GPIO.output(BUZZER, False)
@@ -86,6 +87,7 @@ def stopDoor():
 
 
 def openDoor(force=False):
+    global cancel
     TimeStart = time.clock()
     runTime = 0
     if GPIO.input(HALL_BOTTOM) == HALL_ON or force:  # Door is closed
@@ -117,6 +119,7 @@ def openDoor(force=False):
 
 
 def closeDoor(force=False):
+    global cancel
     TimeStart = time.clock()
     runTime = 0
     if GPIO.input(HALL_TOP) == HALL_ON or force:  # Door is open
