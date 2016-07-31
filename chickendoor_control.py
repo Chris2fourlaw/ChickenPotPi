@@ -28,6 +28,9 @@ HALL_OFF = 0  # FIX ME
 MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
 
+# Global Variables
+cancel = False
+
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(HALL_TOP, GPIO.IN)  # Open
@@ -78,6 +81,7 @@ def stopDoor():
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
     GPIO.output(BUZZER, False)
+    cancel = False
     print 'Door stopped!'
 
 
@@ -118,7 +122,8 @@ def closeDoor(force=False):
         print 'The door is going down!'
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
-        while GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME:
+        while (GPIO.input(HALL_BOTTOM) == HALL_OFF and runTime < MAX_DOOR_TIME
+               and cancel == False):
             time.sleep(BEEP_TIME)
             GPIO.output(BUZZER, True)
             time.sleep(BEEP_TIME)
