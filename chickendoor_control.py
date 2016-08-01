@@ -130,7 +130,7 @@ def moveDoor(force=False, direction=OPEN):
     # Initialize Timeout
     TimeStart = time.clock()
     runTime = 0
-    # Wait for door to complete movement and turn off motor
+    # Wait for door to complete movement
     while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
             direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
            runTime < MAX_DOOR_TIME and not cancel):
@@ -140,6 +140,7 @@ def moveDoor(force=False, direction=OPEN):
         GPIO.output(BUZZER, False)
         if not force:
             runTime = time.clock() - TimeStart
+    # Turn off motor
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
     # Check if we timed out and print message
