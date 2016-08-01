@@ -19,17 +19,17 @@ MOTOR_UP = 22
 MOTOR_DOWN = 23
 BUZZER = 24
 BUTTON = 25
-# HALL_ON = 0  # Active Low
-# HALL_OFF = 1  # Active Low
-HALL_ON = 1  # FIX ME
-HALL_OFF = 0  # FIX ME
+HALL_ON = 0  # Active Low
+HALL_OFF = 1  # Active Low
+# HALL_ON = 1  # FIX ME
+# HALL_OFF = 0  # FIX ME
 
 # Other Constants
 MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
 
 # Global Variables
-global cancel = False
+global cancel=False
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
