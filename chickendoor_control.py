@@ -223,10 +223,6 @@ class DoorControl(object):
                                         onprevclick=self.main_menu)
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!",
                                            "h1")
-        timer_start = self.page.add_button("Start Timer",
-                                           self.control_timer(start=True))
-        timer_stop = self.page.add_button("Stop Timer",
-                                          self.control_timer(start=False))
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
         fup = self.page.add_button("Force Open &uarr;", self.onupforceclick)
@@ -278,47 +274,6 @@ class DoorControl(object):
         time.sleep(0.5)
         killSystem()
 
-    def control_timer(self, start=True):
-        global timer_running
-        global stop_timer
-        if start and timer_running or not start and not timer_running:
-            return
-        if start:
-            timer_running = True
-            stop_timer = False
-        else:
-            stop_timer = True
-            return
-        seconds_since_last_action = 999
-        [open_hour, open_minute] = OPEN_TIME.split(":")
-        [close_hour, close_minute] = CLOSE_TIME.split(":")
-        while True and not stop_timer:
-            ###########################################################
-            # Wait until the specified time and then open or close the
-            # door depending on the specified direction
-            ###########################################################
-
-            # Get current time
-            now = datetime.datetime.now()
-
-            # Make sure at least two minutes have passed since the last action
-            if seconds_since_last_action > 120:
-                # If it's time, perform the action and reset the timer
-                if (now.hour == int(open_hour) and
-                        now.minute == int(open_minute)):
-                    print "Opening at %s:%s" % (str(now.hour), str(now.minute))
-                    moveDoor(direction=OPEN)
-                    # Reset timer
-                if (now.hour == int(close_hour) and
-                        now.minute == int(close_minute)):
-                    print "Closing at %s:%s" % (str(now.hour), str(now.minute))
-                    moveDoor(direction=CLOSE)
-                seconds_since_last_action = 0
-
-            # Sleep for 1 second before checking again
-            time.sleep(1)
-            seconds_since_last_action += 1
-        timer_running = False
 
     GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
                           bouncetime=300)
