@@ -103,7 +103,7 @@ def moveDoor(force=False, direction=OPEN):
     global cancel
     if direction != OPEN and direction != CLOSE:
         print 'Direction is not valid!'
-        exit -1
+        sys.exit(-1)
     # Print direction of action
     if direction == OPEN and (GPIO.input(HALL_BOTTOM) == HALL_ON or force):
         if force:
@@ -243,7 +243,7 @@ def closeDoor(force=False):
             message = 'Coop closed successfully!'
             PushOver(message)
         cancel = False
- 
+
 
 # Web Server Config
 
