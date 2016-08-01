@@ -140,8 +140,8 @@ def moveDoor(force=False, direction=OPEN):
         GPIO.output(BUZZER, False)
         if not force:
             runTime = time.clock() - TimeStart
-        GPIO.output(MOTOR_UP, False)
-        GPIO.output(MOTOR_DOWN, False)
+    GPIO.output(MOTOR_UP, False)
+    GPIO.output(MOTOR_DOWN, False)
     # Check if we timed out and print message
     if runTime >= MAX_DOOR_TIME:
         if direction == OPEN:
