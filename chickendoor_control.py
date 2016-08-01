@@ -84,7 +84,7 @@ def PushOver(message):
 def buttonCallback(channel):
     TimeStart = time.clock()
     pressTime = 0
-    while GPIO.input(BUTTON) == True and pressTime < BUTTON_HOLD_TIME:
+    while GPIO.input(BUTTON) and pressTime < BUTTON_HOLD_TIME:
         pressTime = time.clock() - TimeStart
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
