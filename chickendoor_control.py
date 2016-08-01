@@ -92,6 +92,7 @@ def stopDoor():
 
 
 def buttonCallback(channel):
+    global cancel
     global door_moving
     TimeStart = time.clock()
     pressTime = 0
@@ -105,6 +106,7 @@ def buttonCallback(channel):
         GPIO.output(BUZZER, False)
         while door_moving:
             time.sleep(0.1)
+            print '(door already moving - waiting)'
         cancel = False
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
