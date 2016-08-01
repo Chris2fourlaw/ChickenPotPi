@@ -29,6 +29,7 @@ MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
+BUTTON_HOLD_TIME = 0.5
 
 # Global Variables
 cancel = False
@@ -81,13 +82,20 @@ def PushOver(message):
 
 
 def buttonCallback(channel):
-    print 'Button Pushed'
-    if GPIO.input(HALL_BOTTOM) == HALL_ON:
-        openDoor()
-    elif GPIO.input(HALL_TOP) == HALL_ON:
-        closeDoor()
+    TimeStart = time.clock()
+    pressTime = 0
+    while GPIO.input(BUTTON) == True and pressTime < BUTTON_HOLD_TIME:
+        pressTime = time.clock() - TimeStart
+    if pressTime >= BUTTON_HOLD_TIME:
+        print 'Button Pushed'
+        if GPIO.input(HALL_BOTTOM) == HALL_ON:
+            moveDoor(direction=OPEN)
+        elif GPIO.input(HALL_TOP) == HALL_ON:
+            moveDoor(direction=CLOSE)
+        else:
+            moveDoor(force=True, direction=OPEN)
     else:
-        openDoor(force=True)
+        print 'Button not pressed long enough!'
 
 
 def stopDoor():
@@ -171,82 +179,6 @@ def moveDoor(force=False, direction=OPEN):
         message = 'Door Stopped!'
     PushOver(message)
     cancel = False
-
-
-def openDoor(force=False):
-    global cancel
-    TimeStart = time.clock()
-    runTime = 0
-    if GPIO.input(HALL_BOTTOM) == HALL_ON or force:  # Door is closed
-        if force:
-            print 'Forcing door up!'
-        else:
-            print 'The door is closed!'
-            print 'The door is going up!'
-        GPIO.output(MOTOR_DOWN, False)
-        GPIO.output(MOTOR_UP, True)
-        while (GPIO.input(HALL_TOP) == HALL_OFF and
-               runTime < MAX_DOOR_TIME and not cancel):
-            time.sleep(BEEP_TIME)
-            GPIO.output(BUZZER, True)
-            time.sleep(BEEP_TIME)
-            GPIO.output(BUZZER, False)
-            if not force:
-                runTime = time.clock() - TimeStart
-        GPIO.output(MOTOR_UP, False)
-        time.sleep(1)  # Wait for bounce to settle
-        if runTime >= MAX_DOOR_TIME:
-            # up = '0'
-            print 'Something went wrong while opening! Go check the door!'
-            message = 'Coop open FAILED!'
-            PushOver(message)
-        elif not cancel:
-            if force:
-                print 'Door forced open'
-            else:
-                # up = '0'
-                print 'Door is open!'
-            message = 'Coop opened successfully!'
-            PushOver(message)
-            cancel = False
-
-
-def closeDoor(force=False):
-    global cancel
-    TimeStart = time.clock()
-    runTime = 0
-    if GPIO.input(HALL_TOP) == HALL_ON or force:  # Door is open
-        if force:
-            print 'Forcing door up!'
-        else:
-            print 'The door is open!'
-            print 'The door is going down!'
-        GPIO.output(MOTOR_UP, False)
-        GPIO.output(MOTOR_DOWN, True)
-        while (GPIO.input(HALL_BOTTOM) == HALL_OFF and
-               runTime < MAX_DOOR_TIME and not cancel):
-            time.sleep(BEEP_TIME)
-            GPIO.output(BUZZER, True)
-            time.sleep(BEEP_TIME)
-            GPIO.output(BUZZER, False)
-            if not force:
-                runTime = time.clock() - TimeStart
-        GPIO.output(MOTOR_DOWN, False)
-        time.sleep(1)  # Wait for bounce to settle
-        if runTime >= MAX_DOOR_TIME:
-            # down = '0'
-            print 'Something went wrong while closing! Go check the door!'
-            message = 'Coop close FAILED!'
-            PushOver(message)
-        elif not cancel:
-            if force:
-                print 'Door forced down'
-            else:
-                # down = '0'
-                print 'Door is closed!'
-            message = 'Coop closed successfully!'
-            PushOver(message)
-        cancel = False
 
 
 # Web Server Config
