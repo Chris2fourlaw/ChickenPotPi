@@ -267,7 +267,10 @@ class DoorControl(object):
         killSystem()
 
     GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
-                          bouncetime=300)
+                          bouncetime=300
+    while True:
+        print time.clock()
+        time.sleep(1)
 
 
 def main():
