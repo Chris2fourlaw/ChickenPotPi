@@ -215,6 +215,7 @@ class DoorControl(object):
                                         onprevclick=self.main_menu)
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!",
                                            "h1")
+        timer = self.page.add_button("Start Timer", self.loop)
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
         fup = self.page.add_button("Force Open &uarr;", self.onupforceclick)
@@ -266,11 +267,12 @@ class DoorControl(object):
         time.sleep(0.5)
         killSystem()
 
+    def loop(self):
+        while True:
+            print time.clock()
+            time.sleep(1)
     GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
                           bouncetime=300)
-    while True:
-        print time.clock()
-        time.sleep(1)
 
 
 def main():
@@ -279,3 +281,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
