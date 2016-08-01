@@ -165,9 +165,9 @@ def moveDoor(force=False, direction=OPEN):
             else:
                 print 'Door is closed!'
                 message = 'Coop closed successfully!'
-    PushOver(message)    
+    PushOver(message)
     cancel = False
-  
+
 
 def openDoor(force=False):
     global cancel
@@ -243,7 +243,7 @@ def closeDoor(force=False):
             message = 'Coop closed successfully!'
             PushOver(message)
         cancel = False
-            
+ 
 
 # Web Server Config
 
