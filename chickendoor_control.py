@@ -279,7 +279,7 @@ class DoorControl(object):
     def control_timer(self, start=True):
         global timer_running
         global stop_timer
-        if start and timer_running or stop and not timer_running:
+        if start and timer_running or not start  and not timer_running:
             return
         if start:
             timer_running = True
