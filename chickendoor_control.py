@@ -97,7 +97,6 @@ def buttonCallback(channel):
         pressTime = time.clock() - TimeStart
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
-        stopDoor()
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
