@@ -83,7 +83,7 @@ def buttonCallback(channel):
     elif GPIO.input(HALL_TOP) == HALL_ON:
         closeDoor()
     else:
-        openDoor(force)
+        openDoor(force=True)
 
 
 def stopDoor():
