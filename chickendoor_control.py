@@ -102,8 +102,11 @@ def openDoor(force=False):
     TimeStart = time.clock()
     runTime = 0
     if GPIO.input(HALL_BOTTOM) == HALL_ON or force:  # Door is closed
-        print 'The door is closed!'
-        print 'The door is going up!'
+        if force:
+            print 'Forcing door up!'
+        else:
+            print 'The door is closed!'
+            print 'The door is going up!'
         GPIO.output(MOTOR_DOWN, False)
         GPIO.output(MOTOR_UP, True)
         while (GPIO.input(HALL_TOP) == HALL_OFF and
@@ -137,8 +140,11 @@ def closeDoor(force=False):
     TimeStart = time.clock()
     runTime = 0
     if GPIO.input(HALL_TOP) == HALL_ON or force:  # Door is open
-        print 'The door is open!'
-        print 'The door is going down!'
+        if force:
+            print 'Forcing door up!'
+        else:
+            print 'The door is open!'
+            print 'The door is going down!'
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
         while (GPIO.input(HALL_BOTTOM) == HALL_OFF and
