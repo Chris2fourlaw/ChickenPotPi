@@ -58,7 +58,9 @@ GPIO.output(BUZZER, False)
 
 # Clean kill of script function (Stops Motor, cleans GPIO)
 def killSystem():  # Shutdown is queued
+    global stop_timer
     print 'Performing safe shutoff of Door & Server!'
+    stop_timer = True
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
     GPIO.output(BUZZER, False)
@@ -279,7 +281,7 @@ class DoorControl(object):
     def control_timer(self, start=True):
         global timer_running
         global stop_timer
-        if start and timer_running or not start  and not timer_running:
+        if start and timer_running or not start and not timer_running:
             return
         if start:
             timer_running = True
