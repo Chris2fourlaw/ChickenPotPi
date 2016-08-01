@@ -29,7 +29,7 @@ MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
 
 # Global Variables
-global cancel=False
+cancel = False
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
@@ -84,6 +84,7 @@ def buttonCallback(channel):
         closeDoor()
     else:
         openDoor(force)
+
 
 def stopDoor():
     global cancel
@@ -228,8 +229,9 @@ class DoorControl(object):
         time.sleep(0.5)
         killSystem()
 
-    GPIO.add_event_detect(BUTTON,GPIO.RISING,callback=buttonCallback,
+    GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
                           bouncetime=300)
+
 
 def main():
     piui = DoorControl()
