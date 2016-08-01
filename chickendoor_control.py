@@ -92,6 +92,7 @@ def stopDoor():
 
 
 def buttonCallback(channel):
+    global door_moving
     TimeStart = time.clock()
     pressTime = 0
     while GPIO.input(BUTTON) and pressTime < BUTTON_HOLD_TIME:
