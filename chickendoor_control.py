@@ -81,6 +81,15 @@ def PushOver(message):
 # GPIO Config
 
 
+def stopDoor():
+    global cancel
+    GPIO.output(MOTOR_UP, False)
+    GPIO.output(MOTOR_DOWN, False)
+    GPIO.output(BUZZER, False)
+    cancel = True
+    print 'Door stopped!'
+
+
 def buttonCallback(channel):
     TimeStart = time.clock()
     pressTime = 0
@@ -88,6 +97,7 @@ def buttonCallback(channel):
         pressTime = time.clock() - TimeStart
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
+        stopDoor()
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
@@ -96,15 +106,6 @@ def buttonCallback(channel):
             moveDoor(force=True, direction=OPEN)
     else:
         print 'Button not pressed long enough!'
-
-
-def stopDoor():
-    global cancel
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
-    GPIO.output(BUZZER, False)
-    cancel = True
-    print 'Door stopped!'
 
 
 def moveDoor(force=False, direction=OPEN):
