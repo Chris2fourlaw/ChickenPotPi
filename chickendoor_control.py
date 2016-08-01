@@ -39,8 +39,6 @@ GPIO.setup(MOTOR_UP, GPIO.OUT)
 GPIO.setup(MOTOR_DOWN, GPIO.OUT)
 GPIO.setup(BUZZER, GPIO.OUT)
 GPIO.setup(BUTTON, GPIO.IN)  # Button
-GPIO.add_event_detect(BUTTON,GPIO.RISING,callback=buttonCallback,
-                      bouncetime=300)
 
 # False all output pins
 GPIO.output(MOTOR_UP, False)
@@ -230,6 +228,8 @@ class DoorControl(object):
         time.sleep(0.5)
         killSystem()
 
+    GPIO.add_event_detect(BUTTON,GPIO.RISING,callback=buttonCallback,
+                          bouncetime=300)
 
 def main():
     piui = DoorControl()
