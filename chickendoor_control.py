@@ -27,6 +27,8 @@ HALL_OFF = 1  # Active Low
 # Other Constants
 MAX_DOOR_TIME = 45
 BEEP_TIME = 0.35
+OPEN = 1
+CLOSE = 2
 
 # Global Variables
 cancel = False
@@ -96,6 +98,76 @@ def stopDoor():
     cancel = True
     print 'Door stopped!'
 
+
+def moveDoor(force=False, direction=OPEN):
+    global cancel
+    if direction != OPEN and direction != CLOSE:
+        print 'Direction is not valid!'
+        exit -1
+    # Print direction of action
+    if direction == OPEN and (GPIO.input(HALL_BOTTOM) == HALL_ON or force):
+        if force:
+            print 'Forcing door up!'
+        else:
+            print 'The door is closed!'
+            print 'The door is going up!'
+    elif direction == CLOSE and (GPIO.input(HALL_TOP) == HALL_ON or force):
+        if force:
+            print 'Forcing door down!'
+        else:
+            print 'The door is open!'
+            print 'The door is going down!'
+    else:
+        print 'Door is stuck or moving!'
+        return
+    # Activate Motor
+    if direction == OPEN:
+        GPIO.output(MOTOR_DOWN, False)
+        GPIO.output(MOTOR_UP, True)
+    else:
+        GPIO.output(MOTOR_UP, False)
+        GPIO.output(MOTOR_DOWN, True)
+    # Initialize Timeout
+    TimeStart = time.clock()
+    runTime = 0
+    # Wait for door to complete movement and turn off motor
+    while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
+            direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
+           runTime < MAX_DOOR_TIME and not cancel):
+        time.sleep(BEEP_TIME)
+        GPIO.output(BUZZER, True)
+        time.sleep(BEEP_TIME)
+        GPIO.output(BUZZER, False)
+        if not force:
+            runTime = time.clock() - TimeStart
+        GPIO.output(MOTOR_UP, False)
+        GPIO.output(MOTOR_DOWN, False)
+    # Check if we timed out and print message
+    if runTime >= MAX_DOOR_TIME:
+        if direction == OPEN:
+            print 'Something went wrong while opening! Go check the door!'
+            message = 'Coop open FAILED!'
+        else:
+            print 'Something went wrong while closing! Go check the door!'
+            message = 'Coop close FAILED!'
+    elif not cancel:
+        if direction == OPEN:
+            if force:
+                print 'Door forced open'
+                message = 'Coop forced open successfully!'
+            else:
+                print 'Door is open!'
+                message = 'Coop opened successfully!'
+        else:
+            if force:
+                print 'Door forced down'
+                message = 'Coop forced down successfully!'
+            else:
+                print 'Door is closed!'
+                message = 'Coop closed successfully!'
+    PushOver(message)    
+    cancel = False
+  
 
 def openDoor(force=False):
     global cancel
@@ -216,22 +288,22 @@ class DoorControl(object):
     def onupclick(self):
         self.title.set_text("Opening")
         print "Open"
-        openDoor()
+        moveDoor(direction=OPEN)
 
     def ondownclick(self):
         self.title.set_text("Closing")
         print "Close"
-        closeDoor()
+        moveDoor(direction=CLOSE)
 
     def onupforceclick(self):
         self.title.set_text("Force Open")
         print "Force Open"
-        openDoor(force=True)
+        moveDoor(direction=OPEN, force=True)
 
     def ondownforceclick(self):
         self.title.set_text("Force Close")
         print "Force Close"
-        closeDoor(force=True)
+        moveDoor(direction=CLOSE, force=True)
 
     def onstopclick(self):
         self.title.set_text("Stopping Door")
