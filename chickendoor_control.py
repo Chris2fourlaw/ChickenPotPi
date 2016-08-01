@@ -117,10 +117,14 @@ def openDoor(force=False):
             GPIO.output(BUZZER, False)
             if not force:
                 runTime = time.clock() - TimeStart
-        cancel = False
         GPIO.output(MOTOR_UP, False)
         time.sleep(1)  # Wait for bounce to settle
-        if GPIO.input(HALL_TOP) == HALL_ON:
+        if runTime >= MAX_DOOR_TIME:
+            # up = '0'
+            print 'Something went wrong while opening! Go check the door!'
+            message = 'Coop open FAILED!'
+            PushOver(message)
+        elif not cancel:
             if force:
                 print 'Door forced open'
             else:
@@ -128,11 +132,7 @@ def openDoor(force=False):
                 print 'Door is open!'
             message = 'Coop opened successfully!'
             PushOver(message)
-        else:
-            # up = '0'
-            print 'Something went wrong while opening! Go check the door!'
-            message = 'Coop open FAILED!'
-            PushOver(message)
+            cancel = False
 
 
 def closeDoor(force=False):
@@ -155,10 +155,14 @@ def closeDoor(force=False):
             GPIO.output(BUZZER, False)
             if not force:
                 runTime = time.clock() - TimeStart
-        cancel = False
         GPIO.output(MOTOR_DOWN, False)
         time.sleep(1)  # Wait for bounce to settle
-        if GPIO.input(HALL_BOTTOM) == HALL_ON:
+        if runTime >= MAX_DOOR_TIME:
+            # down = '0'
+            print 'Something went wrong while closing! Go check the door!'
+            message = 'Coop close FAILED!'
+            PushOver(message)
+        elif not cancel:
             if force:
                 print 'Door forced down'
             else:
@@ -166,11 +170,8 @@ def closeDoor(force=False):
                 print 'Door is closed!'
             message = 'Coop closed successfully!'
             PushOver(message)
-        else:
-            # down = '0'
-            print 'Something went wrong while closing! Go check the door!'
-            message = 'Coop close FAILED!'
-            PushOver(message)
+        cancel = False
+            
 
 # Web Server Config
 
