@@ -52,6 +52,7 @@ def killSystem():  # Shutdown is queued
     GPIO.output(MOTOR_UP, False)
     GPIO.output(MOTOR_DOWN, False)
     GPIO.output(BUZZER, False)
+    GPIO.remove_event_detect(BUTTON)
     GPIO.cleanup()
     sys.exit('Motors shutdown, GPIO cleaned, server killed')
 
@@ -78,6 +79,7 @@ def PushOver(message):
 
 
 def buttonCallback(channel):
+    print 'Button Pushed'
     if GPIO.input(HALL_BOTTOM) == HALL_ON:
         openDoor()
     elif GPIO.input(HALL_TOP) == HALL_ON:
@@ -116,8 +118,11 @@ def openDoor(force=False):
         GPIO.output(MOTOR_UP, False)
         time.sleep(1)  # Wait for bounce to settle
         if GPIO.input(HALL_TOP) == HALL_ON:
-            # up = '0'
-            print 'Door is open!'
+            if force:
+                print 'Door forced open'
+            else:
+                # up = '0'
+                print 'Door is open!'
             message = 'Coop opened successfully!'
             PushOver(message)
         else:
@@ -148,8 +153,11 @@ def closeDoor(force=False):
         GPIO.output(MOTOR_DOWN, False)
         time.sleep(1)  # Wait for bounce to settle
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
-            # down = '0'
-            print 'Door is closed!'
+            if force:
+                print 'Door forced down'
+            else:
+                # down = '0'
+                print 'Door is closed!'
             message = 'Coop closed successfully!'
             PushOver(message)
         else:
