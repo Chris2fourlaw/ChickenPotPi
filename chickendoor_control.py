@@ -165,6 +165,9 @@ def moveDoor(force=False, direction=OPEN):
             else:
                 print 'Door is closed!'
                 message = 'Coop closed successfully!'
+    else:
+        print 'Door Stopped!'
+        message = 'Door Stopped!'
     PushOver(message)
     cancel = False
 
