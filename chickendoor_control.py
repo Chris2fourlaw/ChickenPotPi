@@ -33,6 +33,7 @@ BUTTON_HOLD_TIME = 0.5
 
 # Global Variables
 cancel = False
+door_moving = False
 
 # Setting up Board GPIO Pins
 GPIO.setmode(GPIO.BCM)
@@ -97,11 +98,12 @@ def buttonCallback(channel):
         pressTime = time.clock() - TimeStart
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
-        stopDoor()
+        cancel = True
         GPIO.output(BUZZER, True)
         time.sleep(0.2)
         GPIO.output(BUZZER, False)
-        time.sleep(0.5)
+        while door_moving:
+            time.sleep(0.1)
         cancel = False
         if GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
@@ -115,6 +117,8 @@ def buttonCallback(channel):
 
 def moveDoor(force=False, direction=OPEN):
     global cancel
+    global door_moving
+    door_moving = True
     if direction != OPEN and direction != CLOSE:
         print 'Direction is not valid!'
         sys.exit(-1)
@@ -185,6 +189,7 @@ def moveDoor(force=False, direction=OPEN):
         message = 'Door Stopped!'
     PushOver(message)
     cancel = False
+    door_moving = False
 
 
 # Web Server Config
