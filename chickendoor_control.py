@@ -230,6 +230,10 @@ class DoorControl(object):
                                      self.ondownforceclick)
         stop = self.page.add_button("Stop Door", self.onstopclick)
         kill = self.page.add_button("Kill Server", self.onkillclick)
+        timer_start = self.page.add_button("Start Timer",
+                                           self.control_timer(start=True))
+        timer_stop = self.page.add_button("Stop Timer",
+                                          self.control_timer(start=False))
         self.img = self.page.add_image("chickens.png")
 
     def main_menu(self):
