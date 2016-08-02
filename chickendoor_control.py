@@ -31,8 +31,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-OPEN_TIME = "06:00"
-CLOSE_TIME = "18:00"
+OPEN_TIME = "17:15"
+CLOSE_TIME = "17:18"
 
 
 # Global Variables
@@ -300,6 +300,7 @@ class DoorControl(object):
 
             # Get current time
             now = datetime.datetime.now()
+            print "Checking time at %s:%s" % (str(now.hour), str(now.minute))
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
