@@ -31,8 +31,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-OPEN_TIME = "17:15"
-CLOSE_TIME = "17:18"
+OPEN_TIME = "17:19"
+CLOSE_TIME = "17:21"
 
 
 # Global Variables
@@ -321,10 +321,10 @@ class DoorControl(object):
             seconds_since_last_action += 1
         timer_running = False
 
-    def start_timer():
+    def start_timer(self):
         control_timer(start=True)
 
-    def stop_timer():
+    def stop_timer(self):
         control_timer(start=False)
 
     GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
