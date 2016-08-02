@@ -223,6 +223,10 @@ class DoorControl(object):
                                         onprevclick=self.main_menu)
         self.title = self.page.add_textbox("Open Or Close Chicken Coop Door!",
                                            "h1")
+        timer_start = self.page.add_button("Start Timer",
+                                           self.start_timer)
+        timer_stop = self.page.add_button("Stop Timer",
+                                          self.stop_timer)
         up = self.page.add_button("Open &uarr;", self.onupclick)
         down = self.page.add_button("Close &darr;", self.ondownclick)
         fup = self.page.add_button("Force Open &uarr;", self.onupforceclick)
@@ -230,10 +234,6 @@ class DoorControl(object):
                                      self.ondownforceclick)
         stop = self.page.add_button("Stop Door", self.onstopclick)
         kill = self.page.add_button("Kill Server", self.onkillclick)
-        timer_start = self.page.add_button("Start Timer",
-                                           self.control_timer(start=True))
-        timer_stop = self.page.add_button("Stop Timer",
-                                          self.control_timer(start=False))
         self.img = self.page.add_image("chickens.png")
 
     def main_menu(self):
@@ -319,6 +319,12 @@ class DoorControl(object):
             time.sleep(1)
             seconds_since_last_action += 1
         timer_running = False
+
+    def start_timer():
+        control_timer(start=True)
+
+    def stop_timer():
+        control_timer(start=False)
 
     GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
                           bouncetime=300)
