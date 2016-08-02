@@ -22,8 +22,6 @@ BUZZER = 24
 BUTTON = 25
 HALL_ON = 0  # Active Low
 HALL_OFF = 1  # Active Low
-# HALL_ON = 1  # FIX ME
-# HALL_OFF = 0  # FIX ME
 
 # Other Constants
 MAX_DOOR_TIME = 45
@@ -31,8 +29,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-OPEN_TIME = "17:40"
-CLOSE_TIME = "17:43"
+OPEN_TIME = "06:00"
+CLOSE_TIME = "18:00"
 
 
 # Global Variables
@@ -293,17 +291,14 @@ class DoorControl(object):
         [open_hour, open_minute] = OPEN_TIME.split(":")
         [close_hour, close_minute] = CLOSE_TIME.split(":")
         while True and not stop_timer:
-            ###########################################################
             # Wait until the specified time and then open or close the
             # door depending on the specified direction
-            ###########################################################
 
             # Get current time
             now = datetime.datetime.now()
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
-                print "(%d)  now.hour:%s  now.minute:%s  open_hour:%s  open_minute:%s  close_hour:%s  close_minute:%s" % (seconds_since_last_action, str(now.hour), str(now.minute), open_hour, open_minute, close_hour, close_minute)
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
                         now.minute == int(open_minute)):
