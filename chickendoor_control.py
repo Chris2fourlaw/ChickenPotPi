@@ -31,8 +31,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-OPEN_TIME = "17:22"
-CLOSE_TIME = "17:25"
+OPEN_TIME = "17:36"
+CLOSE_TIME = "17:39"
 
 
 # Global Variables
@@ -300,21 +300,22 @@ class DoorControl(object):
 
             # Get current time
             now = datetime.datetime.now()
-            print "Checking time at %s:%s" % (str(now.hour), str(now.minute))
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
+                print "(%d)  now.hour:%s  now.minute:%s  open_hour:%d  open_minute:%d  close_hour:%d  close_minute:%d" % (seconds_since_last_action, str(now.hour), str(now.minute), open_hour, open_minute, close_hour, close_minute)
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
                         now.minute == int(open_minute)):
                     print "Opening at %s:%s" % (str(now.hour), str(now.minute))
                     moveDoor(direction=OPEN)
+                    seconds_since_last_action = 0
                     # Reset timer
                 if (now.hour == int(close_hour) and
                         now.minute == int(close_minute)):
                     print "Closing at %s:%s" % (str(now.hour), str(now.minute))
                     moveDoor(direction=CLOSE)
-                seconds_since_last_action = 0
+                    seconds_since_last_action = 0
 
             # Sleep for 1 second before checking again
             time.sleep(1)
