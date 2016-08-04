@@ -3,11 +3,14 @@ Forked from ericescobar/Chicken_Door, this repo includes scripts to open and clo
 
 # Known Packages Installed
 Aptitude:
-    nginx
-    python-pip
+-    nginx
+-    MySQL
+-    PHP
+-    PHPMyAdmin
+-    python-pip
     
 Pip:
-    speedtest-cli
-    cherrypi
-    piui
-    pep8
+-    speedtest-cli
+-    cherrypi
+-    piui
+-    pep8
