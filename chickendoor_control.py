@@ -128,6 +128,7 @@ def buttonCallback(channel):
             time.sleep(0.1)
             stopDoor()
             print 'Stopping Door'
+            return
         cancel = False
         if GPIO.input((HALL_BOTTOM) == HALL_OFF and
                       GPIO.input(HALL_TOP) == HALL_OFF):
