@@ -22,6 +22,8 @@ BUZZER = 24
 BUTTON = 25
 HALL_ON = 0  # Active Low
 HALL_OFF = 1  # Active Low
+# HALL_ON = 1  # FIX ME
+# HALL_OFF = 0  # FIX ME
 
 # Other Constants
 MAX_DOOR_TIME = 45
@@ -29,8 +31,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-OPEN_TIME = "06:00"
-CLOSE_TIME = "18:00"
+OPEN_TIME = "17:40"
+CLOSE_TIME = "17:43"
 
 
 # Global Variables
@@ -87,6 +89,23 @@ def PushOver(message):
 
 # GPIO Config
 
+def buzzerWarning():
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(1)
+    GPIO.output(BUZZER, False)
+
 
 def stopDoor():
     global cancel
@@ -107,14 +126,17 @@ def buttonCallback(channel):
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
         cancel = True
-        GPIO.output(BUZZER, True)
-        time.sleep(0.2)
-        GPIO.output(BUZZER, False)
         while door_moving:
             time.sleep(0.1)
             print '(door already moving - waiting)'
         cancel = False
-        if GPIO.input(HALL_BOTTOM) == HALL_ON:
+        if GPIO.input((HALL_BOTTOM) == HALL_ON and
+                      GPIO.input(HALL_TOP) == HALL_ON):
+            print 'Door stuck! Are you sure you want to open?'
+            buzzerWarning()
+            if GPIO.input(BUTTON) and BUTTON_HOLD_TIME == 2:
+                moveDoor(force=True, direction=OPEN)
+        elif GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
@@ -127,6 +149,7 @@ def buttonCallback(channel):
 def moveDoor(force=False, direction=OPEN):
     global cancel
     global door_moving
+    global button_stop
     door_moving = True
     if direction != OPEN and direction != CLOSE:
         print 'Direction is not valid!'
@@ -151,7 +174,7 @@ def moveDoor(force=False, direction=OPEN):
     if direction == OPEN:
         GPIO.output(MOTOR_DOWN, False)
         GPIO.output(MOTOR_UP, True)
-    else:
+    elif direction == CLOSE:
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
     # Initialize Timeout
@@ -160,7 +183,7 @@ def moveDoor(force=False, direction=OPEN):
     # Wait for door to complete movement
     while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
             direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
-           runTime < MAX_DOOR_TIME and not cancel):
+           runTime < MAX_DOOR_TIME and GPIO.input(BUTTON) == False and not cancel):
         time.sleep(BEEP_TIME)
         GPIO.output(BUZZER, True)
         time.sleep(BEEP_TIME)
@@ -168,8 +191,7 @@ def moveDoor(force=False, direction=OPEN):
         if not force:
             runTime = time.clock() - TimeStart
     # Turn off motor
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
+    stopDoor()
     # Check if we timed out and print message
     if runTime >= MAX_DOOR_TIME:
         if direction == OPEN:
@@ -291,14 +313,17 @@ class DoorControl(object):
         [open_hour, open_minute] = OPEN_TIME.split(":")
         [close_hour, close_minute] = CLOSE_TIME.split(":")
         while True and not stop_timer:
+            ###########################################################
             # Wait until the specified time and then open or close the
             # door depending on the specified direction
+            ###########################################################
 
             # Get current time
             now = datetime.datetime.now()
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
+                print "(%d)  now.hour:%s  now.minute:%s  open_hour:%s  open_minute:%s  close_hour:%s  close_minute:%s" % (seconds_since_last_action, str(now.hour), str(now.minute), open_hour, open_minute, close_hour, close_minute)
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
                         now.minute == int(open_minute)):
