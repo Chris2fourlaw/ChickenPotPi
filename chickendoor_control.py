@@ -124,10 +124,9 @@ def buttonCallback(channel):
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
         cancel = True
-        while door_moving:
-            time.sleep(0.1)
-            stopDoor()
+        if door_moving:
             print 'Stopping Door'
+            stopDoor()
             return
         cancel = False
         if GPIO.input((HALL_BOTTOM) == HALL_OFF and
