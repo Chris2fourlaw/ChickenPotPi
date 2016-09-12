@@ -126,7 +126,8 @@ def buttonCallback(channel):
         cancel = True
         while door_moving:
             time.sleep(0.1)
-            print '(door already moving - waiting)'
+            stopDoor()
+            print 'Stopping Door'
         cancel = False
         if GPIO.input((HALL_BOTTOM) == HALL_OFF and
                       GPIO.input(HALL_TOP) == HALL_OFF):
@@ -178,7 +179,7 @@ def moveDoor(force=False, direction=OPEN):
     # Wait for door to complete movement
     while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
             direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
-           runTime < MAX_DOOR_TIME and GPIO.input(BUTTON) == False and not cancel):
+           runTime < MAX_DOOR_TIME and not cancel):
         time.sleep(BEEP_TIME)
         GPIO.output(BUZZER, True)
         time.sleep(BEEP_TIME)
