@@ -130,16 +130,13 @@ def buttonCallback(channel):
         cancel = False
         if GPIO.input((HALL_BOTTOM) == HALL_ON and
                       GPIO.input(HALL_TOP) == HALL_ON):
-            print 'Door stuck! Are you sure you want to open?'
+            print 'Door stuck! Opening!'
             buzzerWarning()
-            if GPIO.input(BUTTON) and BUTTON_HOLD_TIME == 2:
-                moveDoor(force=True, direction=OPEN)
+            moveDoor(force=True, direction=OPEN)
         elif GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
-        else:
-            moveDoor(force=True, direction=OPEN)
     else:
         print 'Button not pressed long enough!'
 
