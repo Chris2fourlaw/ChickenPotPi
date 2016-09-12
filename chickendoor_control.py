@@ -128,8 +128,8 @@ def buttonCallback(channel):
             time.sleep(0.1)
             print '(door already moving - waiting)'
         cancel = False
-        if GPIO.input((HALL_BOTTOM) == HALL_ON and
-                      GPIO.input(HALL_TOP) == HALL_ON):
+        if GPIO.input((HALL_BOTTOM) == HALL_OFF and
+                      GPIO.input(HALL_TOP) == HALL_OFF):
             print 'Door stuck! Opening!'
             buzzerWarning()
             moveDoor(force=True, direction=OPEN)
