@@ -89,6 +89,23 @@ def PushOver(message):
 
 # GPIO Config
 
+def buzzerWarning():
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, False)
+    time.sleep(0.25)
+    GPIO.output(BUZZER, True)
+    time.sleep(1)
+    GPIO.output(BUZZER, False)
+
 
 def stopDoor():
     global cancel
@@ -109,14 +126,17 @@ def buttonCallback(channel):
     if pressTime >= BUTTON_HOLD_TIME:
         print 'Button Pushed'
         cancel = True
-        GPIO.output(BUZZER, True)
-        time.sleep(0.2)
-        GPIO.output(BUZZER, False)
         while door_moving:
             time.sleep(0.1)
             print '(door already moving - waiting)'
         cancel = False
-        if GPIO.input(HALL_BOTTOM) == HALL_ON:
+        if GPIO.input((HALL_BOTTOM) == HALL_ON and
+                      GPIO.input(HALL_TOP) == HALL_ON):
+            print 'Door stuck! Are you sure you want to open?'
+            buzzerWarning()
+            if GPIO.input(BUTTON) and BUTTON_HOLD_TIME == 2:
+                moveDoor(force=True, direction=OPEN)
+        elif GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
@@ -129,6 +149,7 @@ def buttonCallback(channel):
 def moveDoor(force=False, direction=OPEN):
     global cancel
     global door_moving
+    global button_stop
     door_moving = True
     if direction != OPEN and direction != CLOSE:
         print 'Direction is not valid!'
@@ -153,7 +174,7 @@ def moveDoor(force=False, direction=OPEN):
     if direction == OPEN:
         GPIO.output(MOTOR_DOWN, False)
         GPIO.output(MOTOR_UP, True)
-    else:
+    elif direction == CLOSE:
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
     # Initialize Timeout
@@ -162,7 +183,7 @@ def moveDoor(force=False, direction=OPEN):
     # Wait for door to complete movement
     while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
             direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
-           runTime < MAX_DOOR_TIME and not cancel):
+           runTime < MAX_DOOR_TIME and GPIO.input(BUTTON) == False and not cancel):
         time.sleep(BEEP_TIME)
         GPIO.output(BUZZER, True)
         time.sleep(BEEP_TIME)
@@ -170,8 +191,7 @@ def moveDoor(force=False, direction=OPEN):
         if not force:
             runTime = time.clock() - TimeStart
     # Turn off motor
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
+    stopDoor()
     # Check if we timed out and print message
     if runTime >= MAX_DOOR_TIME:
         if direction == OPEN:
