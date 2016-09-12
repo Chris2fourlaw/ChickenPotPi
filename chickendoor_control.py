@@ -320,6 +320,7 @@ class DoorControl(object):
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
+                print "(%d)  now.hour:%s  now.minute:%s  open_hour:%s  open_minute:%s  close_hour:%s  close_minute:%s" % (seconds_since_last_action, str(now.hour), str(now.minute), open_hour, open_minute, close_hour, close_minute)
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
                         now.minute == int(open_minute)):
