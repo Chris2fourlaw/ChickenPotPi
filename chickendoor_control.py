@@ -29,14 +29,8 @@ BEEP_TIME = 0.35
 OPEN = 1
 CLOSE = 2
 BUTTON_HOLD_TIME = 0.5
-<<<<<<< HEAD
 OPEN_TIME = "10:00"
-CLOSE_TIME = "07:00"
-=======
-OPEN_TIME = "17:36"
-CLOSE_TIME = "17:39"
->>>>>>> parent of c448172... try again
-
+CLOSE_TIME = "19:00"
 
 # Global Variables
 cancel = False
@@ -92,24 +86,6 @@ def PushOver(message):
 
 # GPIO Config
 
-def buzzerWarning():
-    GPIO.output(BUZZER, True)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, False)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, True)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, False)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, True)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, False)
-    time.sleep(0.25)
-    GPIO.output(BUZZER, True)
-    time.sleep(1)
-    GPIO.output(BUZZER, False)
-
-
 def stopDoor():
     global cancel
     cancel = True
@@ -131,18 +107,14 @@ def buttonCallback(channel):
         cancel = True
         if door_moving:
             print 'Stopping Door'
-            stopDoor()
             return
         cancel = False
-        if GPIO.input((HALL_BOTTOM) == HALL_OFF and
-                      GPIO.input(HALL_TOP) == HALL_OFF):
-            print 'Door stuck! Opening!'
-            buzzerWarning()
-            moveDoor(force=True, direction=OPEN)
-        elif GPIO.input(HALL_BOTTOM) == HALL_ON:
+        if GPIO.input(HALL_BOTTOM) == HALL_ON:
             moveDoor(direction=OPEN)
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
+        else:
+            moveDoor(direction=OPEN, Force = True)
     else:
         print 'Button not pressed long enough!'
 
