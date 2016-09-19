@@ -114,7 +114,7 @@ def buttonCallback(channel):
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
         else:
-            moveDoor(direction=OPEN, Force = True)
+            moveDoor(direction=OPEN, force = True)
     else:
         print 'Button not pressed long enough!'
 
