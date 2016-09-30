@@ -114,7 +114,7 @@ def buttonCallback(channel):
         elif GPIO.input(HALL_TOP) == HALL_ON:
             moveDoor(direction=CLOSE)
         else:
-            moveDoor(direction=OPEN, force = True)
+            moveDoor(force = True, direction=OPEN)
     else:
         print 'Button not pressed long enough!'
 
@@ -122,7 +122,6 @@ def buttonCallback(channel):
 def moveDoor(force=False, direction=OPEN):
     global cancel
     global door_moving
-    global button_stop
     door_moving = True
     if direction != OPEN and direction != CLOSE:
         print 'Direction is not valid!'
@@ -147,7 +146,7 @@ def moveDoor(force=False, direction=OPEN):
     if direction == OPEN:
         GPIO.output(MOTOR_DOWN, False)
         GPIO.output(MOTOR_UP, True)
-    elif direction == CLOSE:
+    else:
         GPIO.output(MOTOR_UP, False)
         GPIO.output(MOTOR_DOWN, True)
     # Initialize Timeout
@@ -164,7 +163,8 @@ def moveDoor(force=False, direction=OPEN):
         if not force:
             runTime = time.clock() - TimeStart
     # Turn off motor
-    stopDoor()
+    GPIO.output(MOTOR_UP, False)
+    GPIO.output(MOTOR_DOWN, False)
     # Check if we timed out and print message
     if runTime >= MAX_DOOR_TIME:
         if direction == OPEN:
@@ -295,7 +295,11 @@ class DoorControl(object):
 
             # Make sure at least two minutes have passed since the last action
             if seconds_since_last_action > 120:
-                print "(%d)  now.hour:%s  now.minute:%s  open_hour:%d  open_minute:%d  close_hour:%d  close_minute:%d" % (seconds_since_last_action, str(now.hour), str(now.minute), open_hour, open_minute, close_hour, close_minute)
+                print ("(%d)  now.hour:%s  now.minute:%s  open_hour:%s  "
+                       "open_minute:%s  close_hour:%s  close_minute:%s" %
+                       (seconds_since_last_action, str(now.hour),
+                        str(now.minute), open_hour, open_minute,
+                        close_hour, close_minute))
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
                         now.minute == int(open_minute)):
