@@ -59,7 +59,7 @@ class DoorControl(object):
         self.ui = PiUi()
 
     # Clean kill of script function (Stops Motor, cleans GPIO)
-    def killSystem():  # Shutdown is queued
+    def killSystem(self):  # Shutdown is queued
         print 'Performing safe shutoff of Door & Server!'
         self.stopTimer = True
         GPIO.output(self.MOTOR_UP, False)
@@ -99,9 +99,9 @@ class DoorControl(object):
         else:
             print 'Button not pressed long enough!'
 
-    def moveDoor(force=False, direction=OPEN):
+    def moveDoor(self, force=False, direction=OPEN):
         self.doorMoving = True
-        if direction != OPEN and direction != CLOSE:
+        if not direction == OPEN and not direction == CLOSE:
             print 'Direction is not valid!'
             sys.exit(-1)
         # Print direction of action
@@ -168,7 +168,7 @@ class DoorControl(object):
         self.cancel = False
         self.doorMoving = False
 
-    def updateTimes(openTime, closeTime):
+    def updateTimes(self, openTime, closeTime):
         print "Updating times..."
         self.OPEN_TIME = openTime
         self.CLOSE_TIME = closeTime
@@ -176,11 +176,11 @@ class DoorControl(object):
             self.stopTimer()
             self.startTimer()
 
-    def mainPage(self):
+    def loadMainPage(self):
         print "Loading main page..."
         self.mainPage = self.ui.new_ui_page(title="Control",
                                             prev_text="Back",
-                                            onprevclick=self.mainMenu)
+                                            onprevclick=self.loadMainMenu)
         self.title = self.mainPage.add_textbox(
             "Open Or Close Chicken Coop Door!",
             "h1")
@@ -188,7 +188,7 @@ class DoorControl(object):
                                  self.startTimer)
         self.mainPage.add_button("Disable Automation",
                                  self.stopTimer)
-        self.mainPage.add_button("Set Automation Times", self.timePage)
+        self.mainPage.add_button("Set Automation Times", self.loadTimePage)
         self.mainPage.add_button("Open &uarr;", self.onUpClick)
         self.mainPage.add_button("Close &darr;", self.onDownClick)
         self.mainPage.add_button("Force Open &uarr;", self.onUpforceClick)
@@ -197,7 +197,7 @@ class DoorControl(object):
         self.mainPage.add_button("Stop Door", self.onStopClick)
         self.mainPage.add_button("Kill Server", self.onKillClick)
 
-    def timePage(self):
+    def loadTimePage(self):
         print "Loading time page..."
         self.timePage = self.ui.new_ui_page(title="Set Automation Times",
                                             prev_text="Back",
@@ -211,21 +211,21 @@ class DoorControl(object):
         self.mainPage.add_button("Submit", self.updateTimes(
             self.openTimeInput.get_text(), self.closeTimeInput.get_text()))
 
-    def consolePage(self):
+    def loadConsolePage(self):
         print "Loading console page..."
         self.consolePage = self.ui.console()
 
-    def mainMenu(self):
+    def loadMainMenu(self):
         print "Loading main menu..."
-        self.menu = self.ui.new_ui_page(title="Chicken Control Center")
+        self.mainMenu = self.ui.new_ui_page(title="Chicken Control Center")
         self.menuList = self.menu.add_list()
-        self.menuList.add_item("Control", chevron=True, onclick=self.mainPage)
+        self.menuList.add_item("Control", chevron=True, onclick=self.loadMainPage)
         self.menuList.add_item("Console", chevron=True,
-                               onclick=self.consolePage)
+                               onclick=self.loadConsolePage)
         self.ui.done()
 
     def main(self):
-        self.mainMenu()
+        self.loadMainMenu()
         self.ui.done()
 
     def onUpClick(self):
