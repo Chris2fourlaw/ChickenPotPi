@@ -9,203 +9,196 @@ import datetime
 import signal
 import sys
 
-# RPi.GPIO Config
-
-# Constants for GPIO Pins
-HALL_TOP = 17
-HALL_BOTTOM = 18
-MOTOR_UP = 22
-MOTOR_DOWN = 23
-BUZZER = 24
-BUTTON = 25
-HALL_ON = 0  # Active Low
-HALL_OFF = 1  # Active Low
-
-# Other Constants
-MAX_DOOR_TIME = 45
-BEEP_TIME = 0.5
-OPEN = 1
-CLOSE = 2
-BUTTON_HOLD_TIME = 0.4
-OPEN_TIME = "10:00"
-CLOSE_TIME = "19:00"
-
-# Global Variables
-cancel = False
-doorMoving = False
-timerRunning = False
-stopTimer = False
-
-# Setting up Board GPIO Pins
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(HALL_TOP, GPIO.IN)  # Open
-GPIO.setup(HALL_BOTTOM, GPIO.IN)  # Closed
-GPIO.setup(MOTOR_UP, GPIO.OUT)
-GPIO.setup(MOTOR_DOWN, GPIO.OUT)
-GPIO.setup(BUZZER, GPIO.OUT)
-GPIO.setup(BUTTON, GPIO.IN)  # Button
-
-# False all output pins
-GPIO.output(MOTOR_UP, False)
-GPIO.output(MOTOR_DOWN, False)
-GPIO.output(BUZZER, False)
-
-
-# Clean kill of script function (Stops Motor, cleans GPIO)
-def killSystem():  # Shutdown is queued
-    global stopTimer
-    print 'Performing safe shutoff of Door & Server!'
-    stopTimer = True
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
-    GPIO.output(BUZZER, False)
-    GPIO.remove_event_detect(BUTTON)
-    GPIO.cleanup()
-    sys.exit('Motors shutdown, GPIO cleaned, server killed')
-
-
-# GPIO Config
-def stopDoor():
-    global cancel
-    cancel = True
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
-    GPIO.output(BUZZER, False)
-    print 'Door stopped!'
-
-
-def buttonCallback(channel):
-    global cancel
-    global doorMoving
-    timeStart = time.clock()
-    pressTime = 0
-    while GPIO.input(BUTTON) and pressTime < BUTTON_HOLD_TIME:
-        pressTime = time.clock() - timeStart
-    if pressTime >= BUTTON_HOLD_TIME:
-        print 'Button Pushed'
-        cancel = True
-        if doorMoving:
-            print 'Stopping Door'
-            return
-        cancel = False
-        if GPIO.input(HALL_BOTTOM) == HALL_ON:
-            moveDoor(direction=OPEN)
-        elif GPIO.input(HALL_TOP) == HALL_ON:
-            moveDoor(direction=CLOSE)
-        else:
-            moveDoor(force=True, direction=OPEN)
-    else:
-        print 'Button not pressed long enough!'
-
-
-def moveDoor(force=False, direction=OPEN):
-    global cancel
-    global doorMoving
-    doorMoving = True
-    if direction != OPEN and direction != CLOSE:
-        print 'Direction is not valid!'
-        sys.exit(-1)
-    # Print direction of action
-    if direction == OPEN and (GPIO.input(HALL_BOTTOM) == HALL_ON or force):
-        if force:
-            print 'Forcing door up!'
-        else:
-            print 'The door is closed!'
-            print 'The door is going up!'
-    elif direction == CLOSE and (GPIO.input(HALL_TOP) == HALL_ON or force):
-        if force:
-            print 'Forcing door down!'
-        else:
-            print 'The door is open!'
-            print 'The door is going down!'
-    else:
-        print 'Door is stuck or moving!'
-        return
-    # Activate Motor
-    if direction == OPEN:
-        GPIO.output(MOTOR_DOWN, False)
-        GPIO.output(MOTOR_UP, True)
-    else:
-        GPIO.output(MOTOR_UP, False)
-        GPIO.output(MOTOR_DOWN, True)
-    # Initialize Timeout
-    timeStart = time.clock()
-    runTime = 0
-    # Wait for door to complete movement
-    while ((direction == OPEN and GPIO.input(HALL_TOP) == HALL_OFF or
-            direction == CLOSE and GPIO.input(HALL_BOTTOM) == HALL_OFF) and
-           runTime < MAX_DOOR_TIME and not cancel):
-        time.sleep(BEEP_TIME)
-        GPIO.output(BUZZER, True)
-        time.sleep(BEEP_TIME)
-        GPIO.output(BUZZER, False)
-        if not force:
-            runTime = time.clock() - timeStart
-    # Turn off motor
-    GPIO.output(MOTOR_UP, False)
-    GPIO.output(MOTOR_DOWN, False)
-    # Check if we timed out and print message
-    if runTime >= MAX_DOOR_TIME:
-        if direction == OPEN:
-            print 'Something went wrong while opening! Go check the door!'
-        else:
-            print 'Something went wrong while closing! Go check the door!'
-    elif not cancel:
-        if direction == OPEN:
-            if force:
-                print 'Door forced open'
-            else:
-                print 'Door is open!'
-        else:
-            if force:
-                print 'Door forced down'
-            else:
-                print 'Door is closed!'
-    else:
-        print 'Door Stopped!'
-    cancel = False
-    doorMoving = False
-
-
-# Web Server Config
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
 
 class DoorControl(object):
+    # Constants for GPIO Pins
+    ENDSTOP_TOP = 17
+    ENDSTOP_BOTTOM = 18
+    MOTOR_UP = 22
+    MOTOR_DOWN = 23
+    BUZZER = 24
+    BUTTON = 25
+    ENDSTOP_ON = 0  # Active Low
+    ENDSTOP_OFF = 1  # Active Low
+
+    # Other Constants
+    MAX_DOOR_TIME = 45
+    BEEP_TIME = 0.5
+    OPEN = 1
+    CLOSE = 2
+    BUTTON_HOLD_TIME = 0.4
+    OPEN_TIME = "10:00"
+    CLOSE_TIME = "19:00"
+
+    # Global Variables
+    cancel = False
+    doorMoving = False
+    timerRunning = False
+    stopTimer = False
 
     def __init__(self):
+        # Setting up Board GPIO Pins
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.ENDSTOP_TOP, GPIO.IN)  # Open
+        GPIO.setup(self.ENDSTOP_BOTTOM, GPIO.IN)  # Closed
+        GPIO.setup(self.MOTOR_UP, GPIO.OUT)
+        GPIO.setup(self.MOTOR_DOWN, GPIO.OUT)
+        GPIO.setup(self.BUZZER, GPIO.OUT)
+        GPIO.setup(self.BUTTON, GPIO.IN)
+
+        # False all output pins
+        GPIO.output(self.MOTOR_UP, False)
+        GPIO.output(self.MOTOR_DOWN, False)
+        GPIO.output(self.BUZZER, False)
+
+        # Web Server Config
+        self.currentDir = os.path.dirname(os.path.abspath(__file__))
+
         self.title = None
         self.txt = None
         self.ui = PiUi()
 
-    def updateTimes(open, close):
-        OPEN_TIME = open
-        CLOSE_TIME = close
-        if timerRunning:
-            stopTimer()
-            startTimer()
+    # Clean kill of script function (Stops Motor, cleans GPIO)
+    def killSystem():  # Shutdown is queued
+        print 'Performing safe shutoff of Door & Server!'
+        self.stopTimer = True
+        GPIO.output(self.MOTOR_UP, False)
+        GPIO.output(self.MOTOR_DOWN, False)
+        GPIO.output(self.BUZZER, False)
+        GPIO.remove_event_detect(self.BUTTON)
+        GPIO.cleanup()
+        sys.exit('Motors shutdown, GPIO cleaned, server killed')
+
+    # GPIO Config
+
+    def stopDoor(self):
+        self.cancel = True
+        GPIO.output(self.MOTOR_UP, False)
+        GPIO.output(self.MOTOR_DOWN, False)
+        GPIO.output(self.BUZZER, False)
+        print 'Door stopped!'
+
+    def buttonCallback(self, channel):
+        timeStart = time.clock()
+        pressTime = 0
+        while GPIO.input(self.BUTTON) and pressTime < BUTTON_HOLD_TIME:
+            pressTime = time.clock() - timeStart
+        if pressTime >= self.BUTTON_HOLD_TIME:
+            print 'Button Pushed'
+            self.cancel = True
+            if doorMoving:
+                print 'Stopping Door'
+                return
+            self.cancel = False
+            if GPIO.input(self.ENDSTOP_BOTTOM) == self.ENDSTOP_ON:
+                moveDoor(direction=OPEN)
+            elif GPIO.input(self.ENDSTOP_TOP) == self.ENDSTOP_ON:
+                moveDoor(direction=CLOSE)
+            else:
+                moveDoor(force=True, direction=OPEN)
+        else:
+            print 'Button not pressed long enough!'
+
+    def moveDoor(force=False, direction=OPEN):
+        self.doorMoving = True
+        if direction != OPEN and direction != CLOSE:
+            print 'Direction is not valid!'
+            sys.exit(-1)
+        # Print direction of action
+        if direction == OPEN and (GPIO.input(self.ENDSTOP_BOTTOM) ==
+                                  self.ENDSTOP_ON or force):
+            if force:
+                print 'Forcing door up!'
+            else:
+                print 'The door is closed!'
+                print 'The door is going up!'
+        elif direction == CLOSE and (GPIO.input(self.ENDSTOP_TOP) ==
+                                     self.ENDSTOP_ON or force):
+            if force:
+                print 'Forcing door down!'
+            else:
+                print 'The door is open!'
+                print 'The door is going down!'
+        else:
+            print 'Door is stuck or moving!'
+            return
+        # Activate Motor
+        if direction == OPEN:
+            GPIO.output(self.MOTOR_DOWN, False)
+            GPIO.output(self.MOTOR_UP, True)
+        else:
+            GPIO.output(self.MOTOR_UP, False)
+            GPIO.output(self.MOTOR_DOWN, True)
+        # Initialize Timeout
+        timeStart = time.clock()
+        runTime = 0
+        # Wait for door to complete movement
+        while ((direction == OPEN and GPIO.input(self.ENDSTOP_TOP) ==
+                self.ENDSTOP_OFF or direction == CLOSE and
+                GPIO.input(self.ENDSTOP_BOTTOM) == self.ENDSTOP_OFF) and
+               runTime < MAX_DOOR_TIME and not cancel):
+            time.sleep(self.BEEP_TIME)
+            GPIO.output(self.BUZZER, True)
+            time.sleep(self.BEEP_TIME)
+            GPIO.output(self.BUZZER, False)
+            if not force:
+                runTime = time.clock() - timeStart
+        # Turn off motor
+        GPIO.output(self.MOTOR_UP, False)
+        GPIO.output(self.MOTOR_DOWN, False)
+        # Check if we timed out and print message
+        if runTime >= MAX_DOOR_TIME:
+            if direction == OPEN:
+                print 'Something went wrong while opening! Go check the door!'
+            else:
+                print 'Something went wrong while closing! Go check the door!'
+        elif not cancel:
+            if direction == OPEN:
+                if force:
+                    print 'Door forced open'
+                else:
+                    print 'Door is open!'
+            else:
+                if force:
+                    print 'Door forced down'
+                else:
+                    print 'Door is closed!'
+        else:
+            print 'Door Stopped!'
+        self.cancel = False
+        self.doorMoving = False
+
+    def updateTimes(openTime, closeTime):
+        print "Updating times..."
+        self.OPEN_TIME = openTime
+        self.CLOSE_TIME = closeTime
+        if self.timerRunning:
+            self.stopTimer()
+            self.startTimer()
 
     def mainPage(self):
+        print "Loading main page..."
         self.mainPage = self.ui.new_ui_page(title="Control",
                                             prev_text="Back",
                                             onprevclick=self.mainMenu)
-        self.title = self.mainPage.add_textbox("Open Or Close Chicken Coop Door!",
-                                               "h1")
-        timerStart = self.mainPage.add_button("Enable Automation",
-                                              self.startTimer)
-        timerStop = self.mainPage.add_button("Disable Automation",
-                                             self.stopTimer)
-        setTime = self.mainPage.add_button("Set Automation Times", self.timePage)
-        up = self.mainPage.add_button("Open &uarr;", self.onUpClick)
-        down = self.mainPage.add_button("Close &darr;", self.onDownClick)
-        fUp = self.mainPage.add_button("Force Open &uarr;", self.onUpforceClick)
-        fDown = self.mainPage.add_button("Force Close &darr;",
-                                         self.onDownForceClick)
-        stop = self.mainPage.add_button("Stop Door", self.onStopClick)
-        kill = self.mainPage.add_button("Kill Server", self.onKillClick)
+        self.title = self.mainPage.add_textbox(
+            "Open Or Close Chicken Coop Door!",
+            "h1")
+        self.mainPage.add_button("Enable Automation",
+                                 self.startTimer)
+        self.mainPage.add_button("Disable Automation",
+                                 self.stopTimer)
+        self.mainPage.add_button("Set Automation Times", self.timePage)
+        self.mainPage.add_button("Open &uarr;", self.onUpClick)
+        self.mainPage.add_button("Close &darr;", self.onDownClick)
+        self.mainPage.add_button("Force Open &uarr;", self.onUpforceClick)
+        self.mainPage.add_button("Force Close &darr;",
+                                 self.onDownForceClick)
+        self.mainPage.add_button("Stop Door", self.onStopClick)
+        self.mainPage.add_button("Kill Server", self.onKillClick)
 
     def timePage(self):
+        print "Loading time page..."
         self.timePage = self.ui.new_ui_page(title="Set Automation Times",
                                             prev_text="Back",
                                             onprevclick=self.mainMenu)
@@ -213,17 +206,22 @@ class DoorControl(object):
         self.openLabel = self.timePage.add_textbox("Time to open:")
         self.openTimeInput = self.timePage.add_input("text", "xx:xx 24hr time")
         self.closeLabel = self.timePage.add_textbox("Time to close:")
-        self.closeTimeInput = self.timePage.add_input("text", "xx:xx 24hr time")
-        submit = self.mainPage.add_button("Submit", self.updateTimes(self.openTimeInput.get_text(), self.closeTimeInput.get_text()))
+        self.closeTimeInput = self.timePage.add_input(
+            "text", "xx:xx 24hr time")
+        self.mainPage.add_button("Submit", self.updateTimes(
+            self.openTimeInput.get_text(), self.closeTimeInput.get_text()))
 
     def consolePage(self):
+        print "Loading console page..."
         self.consolePage = self.ui.console()
 
     def mainMenu(self):
+        print "Loading main menu..."
         self.menu = self.ui.new_ui_page(title="Chicken Control Center")
         self.menuList = self.menu.add_list()
         self.menuList.add_item("Control", chevron=True, onclick=self.mainPage)
-        self.menuList.add_item("Console", chevron=True, onclick=self.consolePage)
+        self.menuList.add_item("Console", chevron=True,
+                               onclick=self.consolePage)
         self.ui.done()
 
     def main(self):
@@ -262,20 +260,18 @@ class DoorControl(object):
         killSystem()
 
     def controlTimer(self, start=True):
-        global timerRunning
-        global stopTimer
-        if start and timerRunning or not start and not timerRunning:
+        if start and self.timerRunning or not start and not self.timerRunning:
             return
         if start:
-            timerRunning = True
-            stop_timer = False
+            self.timerRunning = True
+            self.stopTimer = False
         else:
-            stop_timer = True
+            self.stopTimer = True
             return
-        seconds_since_last_action = 999
-        [open_hour, open_minute] = OPEN_TIME.split(":")
-        [close_hour, close_minute] = CLOSE_TIME.split(":")
-        while True and not stop_timer:
+        secondsSinceLastAction = 999
+        [openHour, openMinute] = OPEN_TIME.split(":")
+        [closeHour, closeMinute] = CLOSE_TIME.split(":")
+        while True and not self.stopTimer:
 
             # Wait until the specified time and then open or close the
             # door depending on the specified direction
@@ -284,29 +280,29 @@ class DoorControl(object):
             now = datetime.datetime.now()
 
             # Make sure at least two minutes have passed since the last action
-            if seconds_since_last_action > 120:
-                print ("(%d)  now.hour:%s  now.minute:%s  open_hour:%s  "
-                       "open_minute:%s  close_hour:%s  close_minute:%s" %
-                       (seconds_since_last_action, str(now.hour),
-                        str(now.minute), open_hour, open_minute,
-                        close_hour, close_minute))
+            if secondsSinceLastAction > 120:
+                print("(%d)  now.hour:%s  now.minute:%s  openHour:%s  "
+                      "openMinute:%s  closeHour:%s  closeMinute:%s" %
+                      (secondsSinceLastAction, str(now.hour),
+                       str(now.minute), openHour, openMinute,
+                       closeHour, closeMinute))
                 # If it's time, perform the action and reset the timer
                 if (now.hour == int(open_hour) and
-                        now.minute == int(open_minute)):
+                        now.minute == int(openMinute)):
                     print "Opening at %s:%s" % (str(now.hour), str(now.minute))
                     moveDoor(direction=OPEN)
-                    seconds_since_last_action = 0
+                    secondsSinceLastAction = 0
                     # Reset timer
-                if (now.hour == int(close_hour) and
-                        now.minute == int(close_minute)):
+                if (now.hour == int(closeHour) and
+                        now.minute == int(closeMinute)):
                     print "Closing at %s:%s" % (str(now.hour), str(now.minute))
                     moveDoor(direction=CLOSE)
-                    seconds_since_last_action = 0
+                    secondsSinceLastAction = 0
 
             # Sleep for 1 second before checking again
             time.sleep(1)
-            seconds_since_last_action += 1
-        timerRunning = False
+            secondsSinceLastAction += 1
+        self.timerRunning = False
 
     def startTimer(self):
         self.controlTimer(start=True)
@@ -314,8 +310,8 @@ class DoorControl(object):
     def stopTimer(self):
         self.controlTimer(start=False)
 
-    GPIO.add_event_detect(BUTTON, GPIO.RISING, callback=buttonCallback,
-                          bouncetime=300)
+    GPIO.add_event_detect(self.BUTTON, GPIO.RISING,
+                          callback=self.buttonCallback, bouncetime=300)
 
 
 def main():
